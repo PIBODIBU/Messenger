@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "257571301070",
+    "firebase_url": "https://private-messenger-78429.firebaseio.com",
+    "project_id": "private-messenger-78429",
+    "storage_bucket": "private-messenger-78429.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257571301070:android:5ea7a055edb6c4bc",
+        "android_client_info": {
+          "package_name": "com.android.privatemessenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257571301070-i22o5u08pbo8pk47ofgm52tloc40blep.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDThyEtdAtJIow0WrUOt5TaDGL9Rt65EnQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

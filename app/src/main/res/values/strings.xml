@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Messenger</string>
+
+    <string name="twitter_key">AqEI6gYD1JX3QQGIbGMCoEZam</string>
+    <string name="twitter_secrey">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
+
+    <string name="drawer_chat_list">Диалоги</string>
+    <string name="drawer_contacts">Контакты</string>
+    <string name="drawer_call">Вызов</string>
+</resources>
