@@ -7,7 +7,9 @@ import android.util.Log;
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.api.RetrofitAPI;
+import com.android.privatemessenger.data.model.ErrorResponse;
 import com.digits.sdk.android.Digits;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.List;
 
@@ -24,10 +26,12 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat_list);
 
         ButterKnife.bind(this);
         getDrawer();
+
+        updateGCMId();
 
         RetrofitAPI.getInstance().getMyChats().enqueue(new Callback<List<Chat>>() {
             @Override
@@ -42,12 +46,31 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         });
     }
 
+    private void updateGCMId() {
+        RetrofitAPI.getInstance().updateFCMId(FirebaseInstanceId.getInstance().getToken()).enqueue(new Callback<ErrorResponse>() {
+            @Override
+            public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                if (response.body() != null) {
+                    if (response.body().isError()) {
+                        Log.e(TAG, "onFailure()-> Error during id update");
+                    } else {
+                        Log.i(TAG, "onResponse()-> GCM id updated successfully");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                Log.e(TAG, "onFailure()-> Error during id update", t);
+            }
+        });
+    }
+
     @OnClick(R.id.btn_logout)
     public void logout() {
         Digits.getSessionManager().clearActiveSession();
         startActivity(new Intent(ChatListActivity.this, LoginActivity.class));
         finish();
     }
-
 
 }

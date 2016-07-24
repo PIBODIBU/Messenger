@@ -47,11 +47,11 @@
         </service>
 
 
-        <receiver android:name=".ui.activity.ChatActivity$MessageReceiver">
+        <!--<receiver android:name="">
             <intent-filter>
                 <action android:name="com.android.privatemessenger.NEW_MESSAGE" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
     </application>
 

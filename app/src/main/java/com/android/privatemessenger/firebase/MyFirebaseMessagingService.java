@@ -8,9 +8,10 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.broadcast.IntentFilters;
+import com.android.privatemessenger.broadcast.IntentKeys;
 import com.android.privatemessenger.ui.activity.ChatListActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -21,16 +22,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        //Displaying data in log
-        //It is optional
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+        String messageText = remoteMessage.getData().get("text");
 
         //Calling method to generate notification
-        sendNotification(remoteMessage.getNotification().getBody());
+        sendNotification(messageText);
 
-        sendBroadcast(new Intent("com.android.privatemessenger.NEW_MESSAGE")
-        .putExtra("text", remoteMessage.getData().get("text")));
+        sendBroadcast(new Intent(IntentFilters.NEW_MESSAGE)
+                .putExtra(IntentKeys.TEXT, messageText));
     }
 
     //This method is only generating push notification
@@ -41,11 +39,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Firebase Push Notification")
+                .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

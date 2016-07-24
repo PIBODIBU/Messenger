@@ -182,7 +182,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     }
                                 }
                                 case ContactsActivity: {
-                                    if (currentClass.equals(ChatListActivity.class.getSimpleName())) {
+                                    if (currentClass.equals(ChatActivity.class.getSimpleName())) {
                                         break;
                                     } else {
                                         startActivity(new Intent(BaseNavDrawerActivity.this, ChatActivity.class)

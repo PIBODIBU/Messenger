@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.broadcast.IntentFilters;
+import com.android.privatemessenger.broadcast.IntentKeys;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import butterknife.ButterKnife;
@@ -17,7 +19,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private final String TAG = ChatActivity.this.getClass().getSimpleName();
 
-    private MessageReceiver messageReceiver;
+    private BroadcastReceiver messageReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,20 +29,18 @@ public class ChatActivity extends AppCompatActivity {
 
         Log.d(TAG, "Token: " + FirebaseInstanceId.getInstance().getToken());
 
-        messageReceiver = new MessageReceiver();
-        registerReceiver(messageReceiver, new IntentFilter("com.android.privatemessenger.NEW_MESSAGE"));
+        messageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, intent.getExtras().getString(IntentKeys.TEXT));
+            }
+        };
+        registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(messageReceiver);
         super.onDestroy();
-    }
-
-    public class MessageReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, intent.getExtras().getString("text"));
-        }
     }
 }
