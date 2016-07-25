@@ -17,6 +17,7 @@
     <string name="error_must_start_with">Номер должен начинаться с +</string>
 
     <string name="toast_login_fail">Ошибка авторизации</string>
+    <string name="toast_loading_error">Произошла ошибка</string>
 
     <string name="dialog_loading">Загрузка…</string>
 </resources>

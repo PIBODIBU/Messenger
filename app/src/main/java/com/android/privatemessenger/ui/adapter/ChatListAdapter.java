@@ -63,13 +63,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.BaseVi
         TextView TVDate = holder.TVDate;
         Chat chat = dataSet.get(position);
 
-        if (TVLastMessage == null) {
-            Log.e(TAG, "onBindViewHolder()-> TVLastMessage is null");
-        }
-        if (chat.getLastMessage() == null) {
-            Log.e(TAG, "onBindViewHolder()-> chat.getLastMessage() is null");
-        }
-
         TVLastMessage.setText(chat.getLastMessage().getMessage());
         TVDate.setText(chat.getFormattedDate());
 
@@ -102,6 +95,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.BaseVi
 
     public void addItem(Chat chat) {
         dataSet.add(chat);
+    }
+
+    public ArrayList<Chat> getDataSet() {
+        return dataSet;
     }
 
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {

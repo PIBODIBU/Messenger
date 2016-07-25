@@ -263,11 +263,12 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
     }
 
-    @Override
-    public void finish() {
-        super.finish();
 
-        overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);
+    @Override
+    public void startActivity(Intent intent) {
+        super.startActivity(intent);
+
+        overridePendingTransition(R.anim.push_out_right, R.anim.pull_in_left);
     }
 
     @Override

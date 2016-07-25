@@ -1,15 +1,25 @@
 package com.android.privatemessenger.ui.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.broadcast.IntentFilters;
+import com.android.privatemessenger.broadcast.IntentKeys;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ErrorResponse;
+import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -30,9 +40,14 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     @BindView(R.id.recycler_view)
     public RecyclerView recyclerView;
 
+    @BindView(R.id.swipe_layout)
+    public SwipeRefreshLayout swipeRefreshLayout;
+
     private ChatListAdapter adapter;
     private ArrayList<Chat> chatSet;
     private LinearLayoutManager layoutManager;
+
+    private BroadcastReceiver messageReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +58,39 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         getDrawer();
 
         setupRecyclerView();
+        setupSwipeRefresh();
         loadData();
+        setupReceivers();
         updateGCMId();
+    }
+
+    private void setupReceivers() {
+        messageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int chatId = intent.getExtras().getInt(IntentKeys.CHAT_ID);
+                String message = intent.getExtras().getString(IntentKeys.MESSAGE);
+
+                Log.d(TAG, "onMessageReceived()-> " +
+                        "\nChat id:" + chatId +
+                        "\nMessage: " + message);
+
+                for (Chat chat : adapter.getDataSet()) {
+                    if (chat.getId() == chatId) {
+                        chat.setLastMessage(new Message(
+                                chat.getLastMessage().getMessageId(),
+                                chat.getLastMessage().getChatRoomId(),
+                                chat.getLastMessage().getUserId(),
+                                message,
+                                chat.getLastMessage().getCreatedAt()
+                        ));
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
+            }
+        };
+        registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
     private void loadData() {
@@ -57,12 +103,28 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                     }
 
                     adapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
             @Override
             public void onFailure(Call<List<Chat>> call, Throwable t) {
                 Log.e(TAG, "Error occurred during my chat list fetching", t);
+
+                Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_login_fail), Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+                chatSet.clear();
+                loadData();
             }
         });
     }
@@ -74,7 +136,10 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         adapter.setRecyclerItemClickListener(new ChatListAdapter.RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
+                Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
+                        .putExtra("chat_id", chatSet.get(position).getId());
 
+                startActivity(intent);
             }
 
             @Override

@@ -32,7 +32,7 @@ public class ChatActivity extends AppCompatActivity {
         messageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG, intent.getExtras().getString(IntentKeys.TEXT));
+
             }
         };
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));

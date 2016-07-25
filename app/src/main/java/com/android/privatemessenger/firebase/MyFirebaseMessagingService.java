@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.broadcast.IntentFilters;
@@ -22,13 +23,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        String messageText = remoteMessage.getData().get("text");
+        int chatId = Integer.valueOf(remoteMessage.getData().get("chat_id"));
+        String messageText = remoteMessage.getData().get("message");
+
+        Log.d(TAG, "onMessageReceived()-> " +
+                "\nChat id:" + chatId +
+                "\nMessage: " + messageText);
 
         //Calling method to generate notification
         sendNotification(messageText);
 
         sendBroadcast(new Intent(IntentFilters.NEW_MESSAGE)
-                .putExtra(IntentKeys.TEXT, messageText));
+                .putExtra(IntentKeys.CHAT_ID, chatId)
+                .putExtra(IntentKeys.MESSAGE, messageText)
+        );
     }
 
     //This method is only generating push notification
