@@ -2,9 +2,21 @@
     <string name="app_name">Private Messenger</string>
 
     <string name="twitter_key">AqEI6gYD1JX3QQGIbGMCoEZam</string>
-    <string name="twitter_secrey">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
+    <string name="twitter_secret">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
 
     <string name="drawer_chat_list">Диалоги</string>
     <string name="drawer_contacts">Контакты</string>
     <string name="drawer_call">Вызов</string>
+    <string name="drawer_logout">Выход</string>
+
+    <string name="hint_name">Имя</string>
+    <string name="hint_phone">Телефон</string>
+
+    <string name="btn_login">Войти</string>
+
+    <string name="error_must_start_with">Номер должен начинаться с +</string>
+
+    <string name="toast_login_fail">Ошибка авторизации</string>
+
+    <string name="dialog_loading">Загрузка…</string>
 </resources>

@@ -11,23 +11,22 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.digits.sdk.android.Digits;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
-import butterknife.BindString;
-import butterknife.ButterKnife;
 import io.fabric.sdk.android.Fabric;
 
 public class BaseNavDrawerActivity extends AppCompatActivity {
@@ -107,6 +106,11 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withIcon(GoogleMaterial.Icon.gmd_call)
                 .withIdentifier(DrawerItems.CallActivity.ordinal());
 
+        final PrimaryDrawerItem logout = new PrimaryDrawerItem()
+                .withName(getResources().getString(R.string.drawer_logout))
+                .withIcon(GoogleMaterial.Icon.gmd_settings_power)
+                .withIdentifier(DrawerItems.Exit.ordinal());
+
         String phone = Digits.getSessionManager().getActiveSession() == null ? "" : Digits.getSessionManager().getActiveSession().getPhoneNumber();
         AccountHeader accountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -114,7 +118,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withHeaderBackground(R.color.colorPrimary)
                 .addProfiles(
                         new ProfileDrawerItem()
-                                .withName("John Smith")
+                                .withName(SharedPrefUtils.getInstance(this).getUser().getName())
                                 .withEmail(phone))
                 .build();
 
@@ -132,7 +136,9 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .addDrawerItems(
                         chatList,
                         contacts,
-                        call
+                        call,
+                        new DividerDrawerItem(),
+                        logout
                 )
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -191,6 +197,12 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                         break;
                                     }
                                 }
+                                case Exit: {
+                                    Digits.getSessionManager().clearActiveSession();
+                                    startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                    finish();
+                                }
                                 default: {
                                     break;
                                 }
@@ -236,7 +248,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String TWITTER_KEY = getResources().getString(R.string.twitter_key);
-        String TWITTER_SECRET = getResources().getString(R.string.twitter_secrey);
+        String TWITTER_SECRET = getResources().getString(R.string.twitter_secret);
 
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new TwitterCore(authConfig), new Digits());
@@ -267,6 +279,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     public enum DrawerItems {
         ChatListActivity,
         ContactsActivity,
-        CallActivity
+        CallActivity,
+        Exit
     }
 }

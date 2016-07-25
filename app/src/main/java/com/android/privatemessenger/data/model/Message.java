@@ -1,35 +1,49 @@
 package com.android.privatemessenger.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Message {
 
-    private int id;
+    @SerializedName("message_id")
+    private int messageId;
 
-    private String text;
+    @SerializedName("chat_room_id")
+    private int chatRoomId;
 
-    private String time;
+    @SerializedName("user_id")
+    private int userId;
 
-    private int senderId;
+    @SerializedName("message")
+    private String message;
 
-    public Message(int id, String text, String time, int senderId) {
-        this.id = id;
-        this.text = text;
-        this.time = time;
-        this.senderId = senderId;
+    @SerializedName("created_at")
+    private String createdAt;
+
+    public Message(int messageId, int chatRoomId, int userId, String message, String createdAt) {
+        this.messageId = messageId;
+        this.chatRoomId = chatRoomId;
+        this.userId = userId;
+        this.message = message;
+        this.createdAt = createdAt;
     }
 
-    public int getId() {
-        return id;
+    public int getMessageId() {
+        return messageId;
     }
 
-    public String getText() {
-        return text;
+    public int getChatRoomId() {
+        return chatRoomId;
     }
 
-    public String getTime() {
-        return time;
+    public int getUserId() {
+        return userId;
     }
 
-    public int getSenderId() {
-        return senderId;
+    public String getMessage() {
+        return message;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
     }
 }

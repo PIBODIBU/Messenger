@@ -6,7 +6,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitAPI {
-    private static final String BASE_URL = "http://nauguide.esy.es/api/v1/";
+    private static final String BASE_URL = "http://nauguide.esy.es/private_msg/v1/";
     private static IAPIService api = null;
 
     public static IAPIService getInstance() {
