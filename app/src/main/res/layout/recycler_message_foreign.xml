@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:gravity="left|start"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tv_sender"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/message_foreign_bg"
+        android:maxWidth="250dp"
+        android:padding="8dp"
+        android:text="Hello! This is my first message. Hello! This is my first message. Hello! This is my first message"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_message"
+        android:layout_toEndOf="@+id/tv_message"
+        android:layout_toRightOf="@+id/tv_message"
+        android:text="12:34"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/tv_sender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Roman Svyatnenko"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="11sp" />
+</RelativeLayout>

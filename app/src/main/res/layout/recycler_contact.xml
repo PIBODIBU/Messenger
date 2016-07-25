@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_bg"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_account"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        app:srcCompat="@drawable/ic_account_circle_teal_500_24dp" />
+
+    <LinearLayout
+        android:id="@+id/ll_container_user_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_toEndOf="@+id/iv_account"
+        android:layout_toRightOf="@+id/iv_account"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Roman Svyatnenko"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="+380930535204"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_below="@+id/ll_container_user_info"
+        android:layout_marginLeft="80dp"
+        android:layout_marginStart="80dp"
+        android:background="@color/colorDivider" />
+
+</RelativeLayout>

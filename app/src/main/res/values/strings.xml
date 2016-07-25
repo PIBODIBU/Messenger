@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Private Messenger</string>
 
+    <string name="activity_contact_list">Контакты</string>
+
     <string name="twitter_key">AqEI6gYD1JX3QQGIbGMCoEZam</string>
     <string name="twitter_secret">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
 
@@ -11,8 +13,10 @@
 
     <string name="hint_name">Имя</string>
     <string name="hint_phone">Телефон</string>
+    <string name="hint_type_message">Введите сообщение</string>
 
     <string name="btn_login">Войти</string>
+    <string name="btn_send">Отправить</string>
 
     <string name="error_must_start_with">Номер должен начинаться с +</string>
 

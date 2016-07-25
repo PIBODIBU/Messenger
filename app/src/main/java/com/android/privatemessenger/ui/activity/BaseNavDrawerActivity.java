@@ -50,6 +50,9 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
         if (basename.equals(ChatListActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.ChatListActivity.ordinal());
+        }
+        if (basename.equals(ContactListActivity.class.getSimpleName())) {
+            drawer.setSelection(DrawerItems.ContactListActivity.ordinal());
         } else {
             drawer.setSelection(-1);
         }
@@ -99,11 +102,11 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         final PrimaryDrawerItem contacts = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_contacts))
                 .withIcon(GoogleMaterial.Icon.gmd_supervisor_account)
-                .withIdentifier(DrawerItems.ContactsActivity.ordinal());
+                .withIdentifier(DrawerItems.ContactListActivity.ordinal());
 
         final PrimaryDrawerItem call = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_call))
-                .withIcon(GoogleMaterial.Icon.gmd_call)
+                .withIcon(GoogleMaterial.Icon.gmd_dialpad)
                 .withIdentifier(DrawerItems.CallActivity.ordinal());
 
         final PrimaryDrawerItem logout = new PrimaryDrawerItem()
@@ -187,11 +190,11 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                         break;
                                     }
                                 }
-                                case ContactsActivity: {
-                                    if (currentClass.equals(ChatActivity.class.getSimpleName())) {
+                                case ContactListActivity: {
+                                    if (currentClass.equals(ContactListActivity.class.getSimpleName())) {
                                         break;
                                     } else {
-                                        startActivity(new Intent(BaseNavDrawerActivity.this, ChatActivity.class)
+                                        startActivity(new Intent(BaseNavDrawerActivity.this, ContactListActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                         finish();
                                         break;
@@ -268,7 +271,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     public void startActivity(Intent intent) {
         super.startActivity(intent);
 
-        overridePendingTransition(R.anim.push_out_right, R.anim.pull_in_left);
+        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }
 
     @Override
@@ -279,7 +282,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
     public enum DrawerItems {
         ChatListActivity,
-        ContactsActivity,
+        ContactListActivity,
         CallActivity,
         Exit
     }

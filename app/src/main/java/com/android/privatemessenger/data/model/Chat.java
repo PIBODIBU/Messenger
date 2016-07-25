@@ -4,12 +4,14 @@ import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-public class Chat {
+public class Chat implements Serializable {
     private final String TAG = getClass().getSimpleName();
 
     @SerializedName("chat_room_id")
@@ -24,17 +26,23 @@ public class Chat {
     @SerializedName("last_message")
     private Message lastMessage;
 
+    @SerializedName("participants_count")
+    private int participantsCount;
+
+    @SerializedName("participants")
+    private List<User> participants;
+
     String[] rusMonths = {
             "янв", "фев", "мар", "апр", "мая", "июн",
             "июл", "авг", "сен", "окт", "ноя", "дек"
     };
 
-    public Chat(int id, String name, String createdAt, Message lastMessage) {
-        this.id = id;
+    public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants) {
         this.name = name;
         this.createdAt = createdAt;
         this.lastMessage = lastMessage;
-
+        this.participantsCount = participantsCount;
+        this.participants = participants;
     }
 
     public int getId() {
@@ -51,6 +59,14 @@ public class Chat {
 
     public Message getLastMessage() {
         return lastMessage;
+    }
+
+    public int getParticipantsCount() {
+        return participantsCount;
+    }
+
+    public List<User> getParticipants() {
+        return participants;
     }
 
     public String getFormattedDate() {

@@ -13,11 +13,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="dccc6249b9f5f22c1094455248b274bbfc5781cc" />
-
 
         <activity android:name=".ui.activity.ChatListActivity">
             <intent-filter>
@@ -26,32 +24,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ui.activity.LoginActivity"
-            android:label="Login" />
-
+        <activity android:name=".ui.activity.LoginActivity" />
         <activity android:name=".ui.activity.ChatActivity" />
-
+        <activity
+            android:name=".ui.activity.ContactListActivity"
+            android:label="@string/activity_contact_list" />
 
         <service android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".firebase.MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
-
-        <!--<receiver android:name="">
-            <intent-filter>
-                <action android:name="com.android.privatemessenger.NEW_MESSAGE" />
-            </intent-filter>
-        </receiver>-->
 
     </application>
 

@@ -22,6 +22,7 @@ import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
+import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -64,6 +65,13 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         updateGCMId();
     }
 
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(messageReceiver);
+
+        super.onDestroy();
+    }
+
     private void setupReceivers() {
         messageReceiver = new BroadcastReceiver() {
             @Override
@@ -82,7 +90,8 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                                 chat.getLastMessage().getChatRoomId(),
                                 chat.getLastMessage().getUserId(),
                                 message,
-                                chat.getLastMessage().getCreatedAt()
+                                chat.getLastMessage().getCreatedAt(),
+                                null
                         ));
                     }
                 }
@@ -111,7 +120,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
             public void onFailure(Call<List<Chat>> call, Throwable t) {
                 Log.e(TAG, "Error occurred during my chat list fetching", t);
 
-                Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_login_fail), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -133,12 +142,11 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         chatSet = new ArrayList<>();
 
         adapter = new ChatListAdapter(this, chatSet);
-        adapter.setRecyclerItemClickListener(new ChatListAdapter.RecyclerItemClickListener() {
+        adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
                 Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
-                        .putExtra("chat_id", chatSet.get(position).getId());
-
+                        .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chatSet.get(position));
                 startActivity(intent);
             }
 

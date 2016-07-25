@@ -1,9 +1,8 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Paint;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
         @BindView(R.id.tv_message)
         public TextView TVMessage;
 
+        @BindView(R.id.tv_sender)
+        public TextView TVSender;
+
         @BindView(R.id.tv_time)
         public TextView TVTime;
 
@@ -45,14 +47,37 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
 
     @Override
     public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message, parent, false);
+        View view;
+
+        Log.d(TAG, "onCreateViewHolder()-> viewType: " + viewType);
+
+        if (viewType == Message.TYPE_MY) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_my, parent, false);
+        } else if (viewType == Message.TYPE_FOREIGN) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_foreign, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_foreign, parent, false);
+        }
+
         return new BaseViewHolder(view);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Log.d(TAG, "getItemViewType()-> " + dataSet.get(position).getType(context));
+        return dataSet.get(position).getType(context);
     }
 
     @Override
     public void onBindViewHolder(final BaseViewHolder holder, final int position) {
         TextView TVMessage = holder.TVMessage;
+        TextView TVSender = holder.TVSender;
         TextView TVTime = holder.TVTime;
+        Message message = dataSet.get(position);
+
+        TVMessage.setText(message.getMessage());
+        TVSender.setText(message.getSender() == null ? "" : message.getSender().getName());
+        TVTime.setText(message.getFormattedDate());
 
         TVMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,11 +106,5 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
 
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {
         this.recyclerItemClickListener = recyclerItemClickListener;
-    }
-
-    public interface RecyclerItemClickListener {
-        void onClick(int position);
-
-        void onLongClick(int position);
     }
 }

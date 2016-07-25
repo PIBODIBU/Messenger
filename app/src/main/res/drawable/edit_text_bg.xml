@@ -3,9 +3,9 @@
 
     <corners android:radius="10dp" />
 
-    <solid android:color="@android:color/white" />
+    <solid android:color="@color/white" />
 
-    <stroke
-        android:width="1dip"
-        android:color="@color/colorTextHint" />
+    <!-- <stroke
+         android:width="1px"
+         android:color="@color/colorTextHint" />-->
 </shape>

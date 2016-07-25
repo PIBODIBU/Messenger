@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,5 +16,50 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/rl_controls"
+        android:layout_below="@+id/toolbar"
+        android:background="@drawable/chat_bg" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_above="@+id/rl_controls"
+        android:background="@drawable/shadow_to_top" />
+
+    <RelativeLayout
+        android:id="@+id/rl_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="0dp">
+
+        <EditText
+            android:id="@+id/et_message"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toLeftOf="@+id/btn_send"
+            android:layout_toStartOf="@+id/btn_send"
+            android:hint="@string/hint_type_message"
+            android:maxHeight="100dp" />
+
+        <ImageButton
+            android:id="@+id/btn_send"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/item_bg"
+            android:padding="8dp"
+            android:scaleType="fitXY"
+            android:text="@string/btn_send"
+            android:textSize="14sp"
+            app:srcCompat="@drawable/ic_send_primary_24dp" />
+    </RelativeLayout>
+</RelativeLayout>

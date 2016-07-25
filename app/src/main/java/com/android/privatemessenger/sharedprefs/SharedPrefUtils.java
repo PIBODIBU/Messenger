@@ -23,7 +23,7 @@ public class SharedPrefUtils {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public void clear(){
+    public void clear() {
         sharedPreferences.edit().clear().apply();
     }
 
@@ -32,6 +32,7 @@ public class SharedPrefUtils {
                 sharedPreferences.getInt(SharedPrefKeys.ID, -1),
                 sharedPreferences.getString(SharedPrefKeys.TOKEN, ""),
                 sharedPreferences.getString(SharedPrefKeys.NAME, ""),
+                sharedPreferences.getString(SharedPrefKeys.PHONE, ""),
                 sharedPreferences.getString(SharedPrefKeys.EMAIL, ""),
                 sharedPreferences.getString(SharedPrefKeys.FCM_ID, ""),
                 sharedPreferences.getString(SharedPrefKeys.CREATE_DATE_TIME, "")
@@ -43,6 +44,7 @@ public class SharedPrefUtils {
                 .putInt(SharedPrefKeys.ID, user.getId())
                 .putString(SharedPrefKeys.TOKEN, user.getToken())
                 .putString(SharedPrefKeys.NAME, user.getName())
+                .putString(SharedPrefKeys.PHONE, user.getPhone())
                 .putString(SharedPrefKeys.EMAIL, user.getEmail())
                 .putString(SharedPrefKeys.FCM_ID, user.getFcmId())
                 .putString(SharedPrefKeys.CREATE_DATE_TIME, user.getCreateDateTime())
@@ -59,6 +61,10 @@ public class SharedPrefUtils {
 
     public void setName(String name) {
         sharedPreferences.edit().putString(SharedPrefKeys.NAME, name).apply();
+    }
+
+    public void setPhone(String phone) {
+        sharedPreferences.edit().putString(SharedPrefKeys.PHONE, phone).apply();
     }
 
     public void setEmail(String email) {
