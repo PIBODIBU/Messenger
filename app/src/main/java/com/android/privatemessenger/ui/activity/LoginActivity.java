@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.Toast;
@@ -42,12 +43,11 @@ public class LoginActivity extends AppCompatActivity {
     @BindString(R.string.twitter_secret)
     public String TWITTER_SECRET;
 
+    @BindView(R.id.et_name)
+    public AppCompatEditText APETName;
 
-    @BindView(R.id.til_name)
-    public TextInputLayout TILName;
-
-    @BindView(R.id.til_phone)
-    public TextInputLayout TILPhone;
+    @BindView(R.id.et_phone)
+    public AppCompatEditText APETPhone;
 
     @BindView(R.id.toolbar)
     public Toolbar toolbar;
@@ -73,12 +73,9 @@ public class LoginActivity extends AppCompatActivity {
             public void success(DigitsSession session, String phoneNumber) {
                 Log.i(TAG, "success()-> Sign in successful");
 
-                String name = "";
+                String name = APETName.getText().toString();
+
                 final ProgressDialog progressDialog;
-
-                if (TILName.getEditText() != null)
-                    name = TILName.getEditText().getText().toString();
-
                 progressDialog = new ProgressDialog(LoginActivity.this);
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
@@ -138,11 +135,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        String phone = "";
-
-        if (TILPhone.getEditText() != null) {
-            phone = TILPhone.getEditText().getText().toString();
-        }
+        String phone = APETPhone.getText().toString();
 
         Digits.authenticate(new DigitsAuthConfig.Builder()
                 .withAuthCallBack(authCallback)
@@ -151,15 +144,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean isInputValid() {
-        if (TILPhone.getEditText() == null || TILName.getEditText() == null) {
-            return false;
-        }
-
-        String phone = TILPhone.getEditText().getText().toString();
-        String name = TILName.getEditText().getText().toString();
+        String phone = APETPhone.getText().toString();
+        String name = APETName.getText().toString();
 
         if (!phone.startsWith("+")) {
-            TILPhone.setError(getResources().getString(R.string.error_must_start_with));
+            Toast.makeText(LoginActivity.this, getResources().getString(R.string.toast_must_start_from), Toast.LENGTH_SHORT).show();
             return false;
         }
 

@@ -9,12 +9,12 @@
 
     <ImageView
         android:id="@+id/iv_account"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        app:srcCompat="@drawable/ic_account_circle_teal_500_24dp" />
+        app:srcCompat="@drawable/ic_account_circle_primary_24dp" />
 
     <LinearLayout
         android:id="@+id/ll_container_user_info"
@@ -49,6 +49,6 @@
         android:layout_below="@+id/ll_container_user_info"
         android:layout_marginLeft="80dp"
         android:layout_marginStart="80dp"
-        android:background="@color/colorDivider" />
+        android:background="@color/colorDividerLight" />
 
 </RelativeLayout>

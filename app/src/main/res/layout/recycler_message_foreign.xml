@@ -30,9 +30,16 @@
         android:layout_alignBottom="@+id/tv_message"
         android:layout_toEndOf="@+id/tv_message"
         android:layout_toRightOf="@+id/tv_message"
-        android:text="12:34"
         android:textColor="@color/colorTextSecondary"
         android:textSize="11sp" />
+
+    <ImageView
+        android:id="@+id/iv_send_status"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_alignBottom="@+id/tv_message"
+        android:layout_toEndOf="@+id/tv_message"
+        android:layout_toRightOf="@+id/tv_message" />
 
     <TextView
         android:id="@+id/tv_sender"

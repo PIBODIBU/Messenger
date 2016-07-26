@@ -48,10 +48,13 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
             return;
         }
 
+        Log.d(TAG, "getCurrentSelection()-> " +
+                "\nbaseName: " + basename +
+                "\nChatListActivity.class.getSimpleName(): " + ChatListActivity.class.getSimpleName());
+
         if (basename.equals(ChatListActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.ChatListActivity.ordinal());
-        }
-        if (basename.equals(ContactListActivity.class.getSimpleName())) {
+        } else if (basename.equals(ContactListActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.ContactListActivity.ordinal());
         } else {
             drawer.setSelection(-1);
@@ -63,10 +66,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
      */
     public void getDrawer() {
         // Creating DrawerBuilder
-        setUpDrawerBuilder();
+        createDrawerBuilder();
 
         // Creating Drawer from DrawerBuilder
-        setUpDrawer();
+        createDrawer();
 
         // Getting current Drawer selection
         getCurrentSelection();
@@ -76,18 +79,18 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
      * Check if user is logged in. If true -> add new DrawerItem to NavigationDrawer (My page)
      * Building NavigationDrawer from Drawer.Builder
      */
-    private void setUpDrawer() {
+    private void createDrawer() {
         if (drawerBuilder != null) {
-            Log.d(TAG, "setUpDrawer() -> Building Drawer from Drawer.Builder");
+            Log.d(TAG, "createDrawer() -> Building Drawer from Drawer.Builder");
 
             drawer = drawerBuilder.build(); // Building Drawer
             drawer.getRecyclerView().setVerticalScrollBarEnabled(false); // remove ScrollBar from RecyclerView
         } else {
-            Log.e(TAG, "setUpDrawer() -> DrawerBuilder is null");
+            Log.e(TAG, "createDrawer() -> DrawerBuilder is null");
         }
     }
 
-    public void setUpDrawerBuilder() {
+    public void createDrawerBuilder() {
         // Инициализируем Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
@@ -202,6 +205,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                 }
                                 case Exit: {
                                     Digits.getSessionManager().clearActiveSession();
+                                    SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).clear();
                                     startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
                                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                     finish();
@@ -266,7 +270,6 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
     }
 
-
     @Override
     public void startActivity(Intent intent) {
         super.startActivity(intent);
@@ -275,9 +278,9 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostResume() {
+    protected void onResume() {
         getCurrentSelection();
-        super.onPostResume();
+        super.onResume();
     }
 
     public enum DrawerItems {

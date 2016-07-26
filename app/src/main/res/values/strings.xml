@@ -2,6 +2,7 @@
     <string name="app_name">Private Messenger</string>
 
     <string name="activity_contact_list">Контакты</string>
+    <string name="activity_login">Вход</string>
 
     <string name="twitter_key">AqEI6gYD1JX3QQGIbGMCoEZam</string>
     <string name="twitter_secret">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
@@ -18,10 +19,11 @@
     <string name="btn_login">Войти</string>
     <string name="btn_send">Отправить</string>
 
-    <string name="error_must_start_with">Номер должен начинаться с +</string>
-
     <string name="toast_login_fail">Ошибка авторизации</string>
     <string name="toast_loading_error">Произошла ошибка</string>
+    <string name="toast_too_long_message">Слишком длинное сообщение</string>
+    <string name="toast_must_start_from">Номер должен начинаться с +</string>
+    <string name="toast_send_error">Ошибка при отправке</string>
 
     <string name="dialog_loading">Загрузка…</string>
 </resources>

@@ -60,7 +60,11 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupSwipeRefresh();
-        loadData();
+        if (savedInstanceState != null && savedInstanceState.getSerializable(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT) != null) {
+            chatSet = (ArrayList<Chat>) getIntent().getSerializableExtra(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT);
+        } else {
+            loadData();
+        }
         setupReceivers();
         updateGCMId();
     }
@@ -72,11 +76,17 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT, chatSet);
+        super.onSaveInstanceState(outState);
+    }
+
     private void setupReceivers() {
         messageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int chatId = intent.getExtras().getInt(IntentKeys.CHAT_ID);
+              /*  int chatId = intent.getExtras().getInt(IntentKeys.CHAT_ID);
                 String message = intent.getExtras().getString(IntentKeys.MESSAGE);
 
                 Log.d(TAG, "onMessageReceived()-> " +
@@ -96,14 +106,20 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                     }
                 }
 
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();*/
             }
         };
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
     private void loadData() {
+        swipeRefreshLayout.setRefreshing(true);
+
         RetrofitAPI.getInstance().getMyChats(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Chat>>() {
+            private void onComplete() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
             @Override
             public void onResponse(Call<List<Chat>> call, Response<List<Chat>> response) {
                 if (response.body() != null) {
@@ -112,7 +128,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                     }
 
                     adapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
+                    onComplete();
                 }
             }
 
@@ -121,7 +137,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 Log.e(TAG, "Error occurred during my chat list fetching", t);
 
                 Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                swipeRefreshLayout.setRefreshing(false);
+                onComplete();
             }
         });
     }

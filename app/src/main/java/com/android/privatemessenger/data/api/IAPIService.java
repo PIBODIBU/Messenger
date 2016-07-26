@@ -35,6 +35,6 @@ public interface IAPIService {
     @GET("contacts")
     Call<List<User>> getContacts(@Query("token") String token);
 
-    @GET("chat/{id}/messages/send")
+    @GET("chat/{id}/on_message")
     Call<SendMessageResponse> sendMessage(@Path("id") int chatId, @Query("token") String token, @Query("message") String message);
 }

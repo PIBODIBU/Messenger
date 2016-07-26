@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
@@ -38,6 +39,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
 
         @BindView(R.id.tv_time)
         public TextView TVTime;
+
+        @BindView(R.id.iv_send_status)
+        public ImageView IVSendStatus;
 
         public BaseViewHolder(View itemView) {
             super(itemView);
@@ -73,11 +77,32 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
         TextView TVMessage = holder.TVMessage;
         TextView TVSender = holder.TVSender;
         TextView TVTime = holder.TVTime;
+        ImageView IVSendStatus = holder.IVSendStatus;
         Message message = dataSet.get(position);
 
         TVMessage.setText(message.getMessage());
         TVSender.setText(message.getSender() == null ? "" : message.getSender().getName());
-        TVTime.setText(message.getFormattedDate());
+
+        switch (message.getSendStatus()) {
+            case Message.STATUS_SENDING: {
+                TVTime.setText("");
+                IVSendStatus.setImageResource(R.drawable.ic_schedule_black_18dp);
+                break;
+            }
+            case Message.STATUS_ERROR: {
+                TVTime.setText("");
+                IVSendStatus.setImageResource(R.drawable.ic_remove_circle_outline_black_18dp);
+                break;
+            }
+            case Message.STATUS_SENT: {
+                TVTime.setText(message.getFormattedDate());
+                IVSendStatus.setImageDrawable(null);
+                break;
+            }
+            default:
+                TVTime.setText(message.getFormattedDate());
+                break;
+        }
 
         TVMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +127,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
     @Override
     public int getItemCount() {
         return dataSet.size();
+    }
+
+    public ArrayList<Message> getDataSet() {
+        return dataSet;
+    }
+
+    public void addMessage(Message message) {
+        dataSet.add(message);
     }
 
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {

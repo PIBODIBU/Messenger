@@ -1,6 +1,5 @@
 package com.android.privatemessenger.ui.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,12 +11,11 @@ import android.widget.Toast;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.api.RetrofitAPI;
-import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
-import com.android.privatemessenger.ui.adapter.ChatListAdapter;
 import com.android.privatemessenger.ui.adapter.ContactListAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.utils.IntentKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +37,7 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     public SwipeRefreshLayout swipeRefreshLayout;
 
     private ContactListAdapter adapter;
-    private ArrayList<User> chatSet;
+    private ArrayList<User> contactSet;
     private LinearLayoutManager layoutManager;
 
     @Override
@@ -52,11 +50,27 @@ public class ContactListActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupSwipeRefresh();
-        loadData();
+        if (savedInstanceState != null && savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CONTACT) != null) {
+            contactSet = (ArrayList<User>) getIntent().getSerializableExtra(IntentKeys.ARRAY_LIST_CONTACT);
+        } else {
+            loadData();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(IntentKeys.ARRAY_LIST_CONTACT, contactSet);
+        super.onSaveInstanceState(outState);
     }
 
     private void loadData() {
+        swipeRefreshLayout.setRefreshing(true);
+
         RetrofitAPI.getInstance().getContacts(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<User>>() {
+            private void onComplete() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
             @Override
             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
                 if (response.body() != null) {
@@ -65,7 +79,7 @@ public class ContactListActivity extends BaseNavDrawerActivity {
                     }
 
                     adapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
+                    onComplete();
                 }
             }
 
@@ -74,7 +88,7 @@ public class ContactListActivity extends BaseNavDrawerActivity {
                 Log.e(TAG, "Error occurred during my chat list fetching", t);
 
                 Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                swipeRefreshLayout.setRefreshing(false);
+                onComplete();
             }
         });
     }
@@ -85,16 +99,16 @@ public class ContactListActivity extends BaseNavDrawerActivity {
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                chatSet.clear();
+                contactSet.clear();
                 loadData();
             }
         });
     }
 
     private void setupRecyclerView() {
-        chatSet = new ArrayList<>();
+        contactSet = new ArrayList<>();
 
-        adapter = new ContactListAdapter(this, chatSet);
+        adapter = new ContactListAdapter(this, contactSet);
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {

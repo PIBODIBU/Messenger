@@ -17,6 +17,10 @@ public class Message implements Serializable {
     public static final int TYPE_MY = 1;
     public static final int TYPE_FOREIGN = 2;
 
+    public static final int STATUS_SENDING = 1;
+    public static final int STATUS_ERROR = 2;
+    public static final int STATUS_SENT = 3;
+
     @SerializedName("message_id")
     private int messageId;
 
@@ -36,6 +40,8 @@ public class Message implements Serializable {
     private User sender;
 
     private int type = -1;
+
+    private int sendStatus = STATUS_SENT;
 
     public Message(int messageId, int chatRoomId, int userId, String message, String createdAt, User sender) {
         this.messageId = messageId;
@@ -78,9 +84,20 @@ public class Message implements Serializable {
         return userId == SharedPrefUtils.getInstance(context).getUser().getId() ? TYPE_MY : TYPE_FOREIGN;
     }
 
+    public int getSendStatus() {
+        return sendStatus;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setSendStatus(int sendStatus) {
+        this.sendStatus = sendStatus;
+    }
+
     public String getFormattedDate() {
         String newDate = "";
-
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         try {

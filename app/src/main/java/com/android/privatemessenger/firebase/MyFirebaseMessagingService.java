@@ -17,26 +17,32 @@ import com.android.privatemessenger.ui.activity.ChatListActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived(RemoteMessage remoteMessage) {/*
         int chatId = Integer.valueOf(remoteMessage.getData().get("chat_id"));
-        String messageText = remoteMessage.getData().get("message");
-
+        String messageText = remoteMessage.getData().get("message");*/
+/*
         Log.d(TAG, "onMessageReceived()-> " +
                 "\nChat id:" + chatId +
                 "\nMessage: " + messageText);
 
         //Calling method to generate notification
-        sendNotification(messageText);
+        sendNotification(messageText);*/
 
-        sendBroadcast(new Intent(IntentFilters.NEW_MESSAGE)
+      /*  sendBroadcast(new Intent(IntentFilters.NEW_MESSAGE)
                 .putExtra(IntentKeys.CHAT_ID, chatId)
                 .putExtra(IntentKeys.MESSAGE, messageText)
-        );
+        );*/
+
+        for (Map.Entry entry : remoteMessage.getData().entrySet()) {
+            Log.d(TAG, "onMessageReceived()-> " + entry.getKey() + "  -  " + entry.getValue());
+        }
     }
 
     //This method is only generating push notification

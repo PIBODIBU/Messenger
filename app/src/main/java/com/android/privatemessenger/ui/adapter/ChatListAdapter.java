@@ -1,12 +1,15 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
@@ -32,13 +35,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.BaseVi
 
     public class BaseViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.root_view)
-        public LinearLayout LLRootView;
+        public RelativeLayout LLRootView;
 
         @BindView(R.id.tv_name)
         public TextView TVName;
 
         @BindView(R.id.tv_last_message)
         public TextView TVLastMessage;
+
+        @BindView(R.id.iv_image)
+        public ImageView IVImage;
 
         @BindView(R.id.tv_date)
         public TextView TVDate;
@@ -57,19 +63,22 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.BaseVi
 
     @Override
     public void onBindViewHolder(final BaseViewHolder holder, final int position) {
-        LinearLayout LLRootView = holder.LLRootView;
+        RelativeLayout LLRootView = holder.LLRootView;
         TextView TVName = holder.TVName;
         TextView TVLastMessage = holder.TVLastMessage;
         TextView TVDate = holder.TVDate;
+        ImageView IVImage = holder.IVImage;
         Chat chat = dataSet.get(position);
 
         if (chat.getParticipantsCount() == 2) {
             TVName.setText(chat.getParticipants().get(0).getName());
+            IVImage.setImageResource(R.drawable.ic_person_primary_24dp);
         } else {
             TVName.setText(chat.getName());
+            IVImage.setImageResource(R.drawable.ic_group_primary_24dp);
         }
 
-        TVLastMessage.setText(chat.getLastMessage().getMessage());
+        TVLastMessage.setText(chat.getLastMessage() == null ? "" : chat.getLastMessage().getMessage());
         TVDate.setText(chat.getFormattedDate());
 
         LLRootView.setOnClickListener(new View.OnClickListener() {
