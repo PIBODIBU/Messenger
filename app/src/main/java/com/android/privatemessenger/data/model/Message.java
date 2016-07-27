@@ -11,8 +11,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class Message implements Serializable {
+    private static final String TAG = "Message";
 
     public static final int TYPE_MY = 1;
     public static final int TYPE_FOREIGN = 2;
@@ -93,21 +95,30 @@ public class Message implements Serializable {
     }
 
     public void setSendStatus(int sendStatus) {
+        Log.d(TAG, "setSendStatus()-> Status: " + sendStatus);
         this.sendStatus = sendStatus;
     }
 
     public String getFormattedDate() {
         String newDate = "";
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        if (getCreatedAt() == null) {
+            return "";
+        }
 
         try {
             Date oldDate = format.parse(getCreatedAt());
+
             format = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            format.setTimeZone(TimeZone.getDefault());
+
             newDate = format.format(oldDate);
         } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            ex.printStackTrace();
+            Log.e(TAG, "getFormattedDate()-> ParseException", e);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "getFormattedDate()-> ArrayIndexOutOfBoundsException", e);
         }
 
         return newDate;

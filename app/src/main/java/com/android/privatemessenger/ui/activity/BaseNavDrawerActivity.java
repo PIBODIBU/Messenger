@@ -261,7 +261,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         Fabric.with(this, new TwitterCore(authConfig), new Digits());
 
         // Check if user is logged in
-        if (Digits.getSessionManager().getActiveSession() == null) {
+        if (Digits.getSessionManager().getActiveSession() == null || SharedPrefUtils.getInstance(this).getUser().getToken().equals("")) {
             startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             finish();

@@ -98,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPrefUtils.getInstance(LoginActivity.this).setUser(response.body().getUser());
                         progressDialog.cancel();
                         startActivity(new Intent(LoginActivity.this, ChatListActivity.class));
+                        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
                         finish();
                     }
 
@@ -149,6 +150,11 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!phone.startsWith("+")) {
             Toast.makeText(LoginActivity.this, getResources().getString(R.string.toast_must_start_from), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (name.equals("")) {
+            Toast.makeText(LoginActivity.this, getResources().getString(R.string.toast_enter_name), Toast.LENGTH_SHORT).show();
             return false;
         }
 

@@ -29,6 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/tv_message"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_toLeftOf="@+id/tv_message"
         android:layout_toStartOf="@+id/tv_message"
         android:textColor="@color/colorTextSecondary"
@@ -39,8 +41,8 @@
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:layout_alignBottom="@+id/tv_message"
-        android:layout_toLeftOf="@+id/tv_message"
-        android:layout_toStartOf="@+id/tv_message" />
+        android:layout_toLeftOf="@+id/tv_time"
+        android:layout_toStartOf="@+id/tv_time" />
 
     <TextView
         android:id="@+id/tv_sender"

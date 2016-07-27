@@ -29,7 +29,10 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     }
 
     private void sendRegistrationToServer(String token) {
-        RetrofitAPI.getInstance().updateFCMId(token).enqueue(new Callback<ErrorResponse>() {
+        RetrofitAPI.getInstance().updateFCMId(
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                token
+        ).enqueue(new Callback<ErrorResponse>() {
             @Override
             public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
                 if (response.body() != null) {

@@ -22,9 +22,8 @@ public interface IAPIService {
     @POST("user/login")
     Call<LoginResponse> login(@Field("name") String name, @Field("phone") String phone);
 
-    @FormUrlEncoded
-    @POST("my/gcm/id/update")
-    Call<ErrorResponse> updateFCMId(@Field("gcm_registration_id") String id);
+    @GET("my/gcm/id/update")
+    Call<ErrorResponse> updateFCMId(@Query("token") String token, @Query("gcm") String id);
 
     @GET("my/chats")
     Call<List<Chat>> getMyChats(@Query("token") String token);

@@ -15,14 +15,16 @@ import android.widget.Toast;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.broadcast.IntentFilters;
-import com.android.privatemessenger.broadcast.IntentKeys;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
+import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.utils.IntentKeys;
+import com.android.privatemessenger.utils.RequestCodes;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -60,13 +62,45 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupSwipeRefresh();
-        if (savedInstanceState != null && savedInstanceState.getSerializable(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT) != null) {
-            chatSet = (ArrayList<Chat>) getIntent().getSerializableExtra(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT);
-        } else {
-            loadData();
-        }
+        loadData();
         setupReceivers();
         updateGCMId();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RequestCodes.ACTIVITY_CHAT) {
+            if (data == null) {
+                return;
+            }
+
+            int chatRoomId = data.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1);
+            Message lastMessage = (Message) data.getSerializableExtra(IntentKeys.MESSAGE);
+
+            if (chatRoomId == -1 || lastMessage == null) {
+                return;
+            }
+
+            updateLastMessage(chatRoomId, lastMessage);
+        }
+    }
+
+    private void updateLastMessage(int chatRoomId, Message lastMessage) {
+        boolean found = false;
+
+        for (Chat chat : adapter.getDataSet()) {
+            if (chat.getId() == chatRoomId) {
+                chat.setLastMessage(lastMessage);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -76,44 +110,40 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         super.onDestroy();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(com.android.privatemessenger.utils.IntentKeys.ARRAY_LIST_CHAT, chatSet);
-        super.onSaveInstanceState(outState);
-    }
-
     private void setupReceivers() {
         messageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-              /*  int chatId = intent.getExtras().getInt(IntentKeys.CHAT_ID);
-                String message = intent.getExtras().getString(IntentKeys.MESSAGE);
+                Message message = new Message(
+                        intent.getIntExtra(IntentKeys.MESSAGE_ID, -1),
+                        intent.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1),
+                        intent.getIntExtra(IntentKeys.SENDER_ID, -1),
+                        intent.getStringExtra(IntentKeys.MESSAGE),
+                        intent.getStringExtra(IntentKeys.CREATED_AT),
+                        new User(
+                                intent.getIntExtra(IntentKeys.SENDER_ID, -1),
+                                "",
+                                intent.getStringExtra(IntentKeys.SENDER_NAME),
+                                intent.getStringExtra(IntentKeys.SENDER_PHONE),
+                                intent.getStringExtra(IntentKeys.SENDER_EMAIl),
+                                "",
+                                ""
+                        )
+                );
 
-                Log.d(TAG, "onMessageReceived()-> " +
-                        "\nChat id:" + chatId +
-                        "\nMessage: " + message);
-
-                for (Chat chat : adapter.getDataSet()) {
-                    if (chat.getId() == chatId) {
-                        chat.setLastMessage(new Message(
-                                chat.getLastMessage().getMessageId(),
-                                chat.getLastMessage().getChatRoomId(),
-                                chat.getLastMessage().getUserId(),
-                                message,
-                                chat.getLastMessage().getCreatedAt(),
-                                null
-                        ));
-                    }
-                }
-
-                adapter.notifyDataSetChanged();*/
+                updateLastMessage(
+                        intent.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1),
+                        message
+                );
             }
         };
+
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
     private void loadData() {
         swipeRefreshLayout.setRefreshing(true);
+        Log.d(TAG, "loadData()-> Refreshing: " + swipeRefreshLayout.isRefreshing());
 
         RetrofitAPI.getInstance().getMyChats(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Chat>>() {
             private void onComplete() {
@@ -148,7 +178,9 @@ public class ChatListActivity extends BaseNavDrawerActivity {
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                chatSet.clear();
+                if (chatSet != null) {
+                    chatSet.clear();
+                }
                 loadData();
             }
         });
@@ -163,7 +195,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
             public void onClick(int position) {
                 Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
                         .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chatSet.get(position));
-                startActivity(intent);
+                startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
             }
 
             @Override
@@ -181,7 +213,11 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     }
 
     private void updateGCMId() {
-        RetrofitAPI.getInstance().updateFCMId(FirebaseInstanceId.getInstance().getToken()).enqueue(new Callback<ErrorResponse>() {
+        Log.d(TAG, "updateGCMId()-> FCM registration id: " + FirebaseInstanceId.getInstance().getToken());
+        RetrofitAPI.getInstance().updateFCMId(
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                FirebaseInstanceId.getInstance().getToken()
+        ).enqueue(new Callback<ErrorResponse>() {
             @Override
             public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
                 if (response.body() != null) {

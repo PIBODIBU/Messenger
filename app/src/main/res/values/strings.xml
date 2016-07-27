@@ -24,6 +24,7 @@
     <string name="toast_too_long_message">Слишком длинное сообщение</string>
     <string name="toast_must_start_from">Номер должен начинаться с +</string>
     <string name="toast_send_error">Ошибка при отправке</string>
+    <string name="toast_enter_name">Введите имя</string>
 
     <string name="dialog_loading">Загрузка…</string>
 </resources>

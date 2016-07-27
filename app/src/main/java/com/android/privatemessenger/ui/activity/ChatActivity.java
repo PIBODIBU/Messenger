@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.application.ActivityWatcher;
 import com.android.privatemessenger.broadcast.IntentFilters;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
@@ -21,7 +22,9 @@ import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatAdapter;
+import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.Values;
 
@@ -71,22 +74,59 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupReceivers();
-        if (savedInstanceState != null && savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_MESSAGE) != null) {
-            messageSet = (ArrayList<Message>) getIntent().getSerializableExtra(IntentKeys.ARRAY_LIST_MESSAGE);
-        } else {
-            loadData();
-        }
+        loadData(true);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(IntentKeys.ARRAY_LIST_MESSAGE, messageSet);
-        super.onSaveInstanceState(outState);
+    protected void onResume() {
+        super.onResume();
+        ActivityWatcher.setChatActivityShowing(true);
+        ActivityWatcher.setCurrentChatId(chat.getId());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ActivityWatcher.setChatActivityShowing(false);
+    }
+
+    public void sendMessage(final Message message) {
+        message.setSendStatus(Message.STATUS_SENDING);
+        adapter.getDataSet().add(0, message);
+        adapter.notifyItemInserted(adapter.getDataSet().indexOf(message));
+        recyclerView.scrollToPosition(adapter.getDataSet().indexOf(message));
+
+        RetrofitAPI.getInstance().sendMessage(
+                chat.getId(),
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                message.getMessage()
+        ).enqueue(new Callback<SendMessageResponse>() {
+            @Override
+            public void onResponse(Call<SendMessageResponse> call, Response<SendMessageResponse> response) {
+                if (response == null || response.body() == null || response.body().getErrorResponse().isError()) {
+                    message.setSendStatus(Message.STATUS_ERROR);
+                } else {
+                    message.setCreatedAt(response.body().getMessage().getCreatedAt());
+                    message.setSendStatus(Message.STATUS_SENT);
+                }
+
+                adapter.notifyItemChanged(adapter.getDataSet().indexOf(message));
+                setResult(chat.getId(), message);
+            }
+
+            @Override
+            public void onFailure(Call<SendMessageResponse> call, Throwable t) {
+                message.setSendStatus(Message.STATUS_ERROR);
+                adapter.notifyItemChanged(adapter.getDataSet().indexOf(message));
+                Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_send_error), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @OnClick(R.id.btn_send)
     public void sendMessage() {
         String message = ETMessage.getText().toString();
+        ETMessage.setText("");
 
         if (message.equals("")) {
             return;
@@ -105,40 +145,30 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 "",
                 SharedPrefUtils.getInstance(this).getUser()
         );
-        newMessage.setSendStatus(Message.STATUS_SENDING);
-        adapter.getDataSet().add(0, newMessage);
-        adapter.notifyItemInserted(adapter.getDataSet().indexOf(newMessage));
-        recyclerView.scrollToPosition(adapter.getDataSet().indexOf(newMessage));
 
-        RetrofitAPI.getInstance().sendMessage(
-                chat.getId(),
-                SharedPrefUtils.getInstance(this).getUser().getToken(),
-                message).enqueue(new Callback<SendMessageResponse>() {
-            @Override
-            public void onResponse(Call<SendMessageResponse> call, Response<SendMessageResponse> response) {
-                if (response == null || response.body() == null || response.body().getErrorResponse().isError()) {
-                    newMessage.setSendStatus(Message.STATUS_ERROR);
-                } else {
-                    newMessage.setCreatedAt(response.body().getMessage().getFormattedDate());
-                    newMessage.setSendStatus(Message.STATUS_SENT);
-                }
-
-                adapter.notifyItemChanged(adapter.getDataSet().indexOf(newMessage));
-            }
-
-            @Override
-            public void onFailure(Call<SendMessageResponse> call, Throwable t) {
-                newMessage.setSendStatus(Message.STATUS_ERROR);
-                adapter.notifyItemChanged(adapter.getDataSet().indexOf(newMessage));
-                Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_send_error), Toast.LENGTH_SHORT).show();
-            }
-        });
+        sendMessage(newMessage);
     }
 
-    private void loadData() {
+    private void setResult(int chatRoomId, Message lastMessage) {
+        setResult(RESULT_OK, new Intent()
+                .putExtra(IntentKeys.CHAT_ROOM_ID, chatRoomId)
+                .putExtra(IntentKeys.MESSAGE, lastMessage)
+        );
+    }
+
+    private void loadData(final boolean addLoadingItem) {
+        final int loadingItemPosition = addLoadingItem ? adapter.addRefreshItem() : -1;
+
         RetrofitAPI.getInstance().getChatMessages(chat.getId(), SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Message>>() {
             private void onError() {
                 Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+            }
+
+            private void onEnd() {
+               /* if (addLoadingItem)
+                    adapter.removeRefreshItem(loadingItemPosition);*/
+
+                adapter.setLoaded();
             }
 
             @Override
@@ -154,28 +184,56 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
                 adapter.notifyDataSetChanged();
                 recyclerView.scrollToPosition(0);
+                onEnd();
             }
 
             @Override
             public void onFailure(Call<List<Message>> call, Throwable t) {
                 Log.e(TAG, "onFailure()-> Cannot load messages", t);
                 onError();
+                onEnd();
             }
         });
     }
 
     private void setupRecyclerView() {
         messageSet = new ArrayList<>();
-        adapter = new ChatAdapter(this, messageSet);
         linearLayoutManager = new LinearLayoutManager(this);
+
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
 
+        adapter = new ChatAdapter(this, recyclerView, messageSet);
+        recyclerView.setAdapter(adapter);
+
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
-            public void onClick(int position) {
+            public void onClick(final int position) {
+                final Message message = adapter.getMessage(position);
 
+                if (message.getSendStatus() == Message.STATUS_ERROR) {
+                    MessageActionDialog dialog = new MessageActionDialog();
+
+                    dialog.setMessageActionListener(new MessageActionDialog.MessageActionListener() {
+                        @Override
+                        public void onRetry() {
+                            adapter.getDataSet().remove(message);
+                            adapter.notifyItemRemoved(position);
+                            sendMessage(message);
+                        }
+
+                        @Override
+                        public void onDelete() {
+                            adapter.removeMessage(position);
+                        }
+                    });
+
+                    dialog.show(getSupportFragmentManager(), "MessageActionDialog");
+                }
             }
 
             @Override
@@ -184,10 +242,12 @@ public class ChatActivity extends BaseNavDrawerActivity {
             }
         });
 
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+
+            }
+        });
     }
 
     private void setupReceivers() {
@@ -197,24 +257,28 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 Message message = new Message(
                         intent.getIntExtra(IntentKeys.MESSAGE_ID, -1),
                         intent.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1),
-                        intent.getIntExtra(IntentKeys.USER_ID, -1),
+                        intent.getIntExtra(IntentKeys.SENDER_ID, -1),
                         intent.getStringExtra(IntentKeys.MESSAGE),
                         intent.getStringExtra(IntentKeys.CREATED_AT),
                         new User(
-                                intent.getIntExtra(IntentKeys.USER_ID, -1),
+                                intent.getIntExtra(IntentKeys.SENDER_ID, -1),
                                 "",
                                 intent.getStringExtra(IntentKeys.SENDER_NAME),
-                                "",
-                                "",
+                                intent.getStringExtra(IntentKeys.SENDER_PHONE),
+                                intent.getStringExtra(IntentKeys.SENDER_EMAIl),
                                 "",
                                 ""
                         )
                 );
 
-                adapter.addMessage(message);
-                adapter.notifyItemInserted(1);
+                adapter.getDataSet().add(0, message);
+                adapter.notifyItemInserted(adapter.getDataSet().indexOf(message));
+                recyclerView.scrollToPosition(adapter.getDataSet().indexOf(message));
+
+                ChatActivity.this.setResult(chat.getId(), message);
             }
         };
+
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 

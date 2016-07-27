@@ -1,8 +1,13 @@
 package com.android.privatemessenger.data.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class LoginResponse {
+
+    @SerializedName("error")
     private ErrorResponse errorResponse;
 
+    @SerializedName("user")
     private User user;
 
     public LoginResponse(ErrorResponse errorResponse, User user) {

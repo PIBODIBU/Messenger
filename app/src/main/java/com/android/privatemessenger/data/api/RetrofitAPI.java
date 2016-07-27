@@ -13,7 +13,10 @@ public class RetrofitAPI {
         if (api == null) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(interceptor)
+                    .retryOnConnectionFailure(true)
+                    .build();
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)

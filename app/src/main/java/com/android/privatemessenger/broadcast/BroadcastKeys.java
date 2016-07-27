@@ -1,6 +1,9 @@
 package com.android.privatemessenger.broadcast;
 
-public class IntentKeys {
+public class BroadcastKeys {
+    public static final String JSON_OBJECT_MESSAGE = "message";
+    public static final String JSON_OBJECT_SENDER = "sender";
+
     public static final String MESSAGE = "message";
     public static final String MESSAGE_ID = "message_id";
     public static final String CHAT_ROOM_ID = "chat_room_id";

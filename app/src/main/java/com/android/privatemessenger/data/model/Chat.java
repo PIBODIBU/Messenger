@@ -8,11 +8,13 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class Chat implements Serializable {
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "Chat";
 
     @SerializedName("chat_room_id")
     private int id;
@@ -31,11 +33,6 @@ public class Chat implements Serializable {
 
     @SerializedName("participants")
     private List<User> participants;
-
-    String[] rusMonths = {
-            "янв", "фев", "мар", "апр", "мая", "июн",
-            "июл", "авг", "сен", "окт", "ноя", "дек"
-    };
 
     public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants) {
         this.name = name;
@@ -71,22 +68,34 @@ public class Chat implements Serializable {
 
     public String getFormattedDate() {
         String newDate = "";
+        String[] rusMonths = {
+                "янв", "фев", "мар", "апр", "мая", "июн",
+                "июл", "авг", "сен", "окт", "ноя", "дек"
+        };
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        if (getCreatedAt() == null) {
+            return "";
+        }
 
         try {
             Date oldDate = format.parse(getCreatedAt());
+
             format = new SimpleDateFormat("dd.MM", Locale.getDefault());
+            format.setTimeZone(TimeZone.getDefault());
+
             newDate = format.format(oldDate);
 
-            String[] splittedDate = newDate.split(".");
-            newDate = splittedDate[0] + " " + rusMonths[Integer.valueOf(splittedDate[1]) + 1];
+            Log.d(TAG, "getFormattedDate()-> Date: " + newDate);
 
-            Log.d(TAG, "getFormattedDate()-> newDate: " + newDate);
+            String[] splittedDate = newDate.split("\\.");
+            newDate = splittedDate[0] + " " + rusMonths[Integer.valueOf(splittedDate[1]) - 1];
         } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            ex.printStackTrace();
+            Log.e(TAG, "getFormattedDate()-> ParseException", e);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.e(TAG, "getFormattedDate()-> ArrayIndexOutOfBoundsException", e);
         }
 
         return newDate;
