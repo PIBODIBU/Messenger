@@ -35,6 +35,12 @@
         <activity
             android:name=".ui.activity.CallActivity"
             android:windowSoftInputMode="stateAlwaysVisible" />
+        <activity
+            android:name=".ui.activity.UserPageActivity"
+            android:label="@string/title_activity_user_page"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".ui.activity.MyProfileActivity" />
+        <activity android:name=".ui.activity.MyProfileEditActivity" />
 
         <service android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>
@@ -46,11 +52,5 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
-        <activity
-            android:name=".ui.activity.UserPageActivity"
-            android:label="@string/title_activity_user_page"
-            android:theme="@style/AppTheme"></activity>
     </application>
-
 </manifest>

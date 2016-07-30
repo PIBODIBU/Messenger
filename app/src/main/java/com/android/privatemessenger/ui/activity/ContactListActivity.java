@@ -176,7 +176,12 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     }
 
     private void loadData() {
-        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
 
         RetrofitAPI.getInstance().getContacts(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<User>>() {
             private void onComplete() {

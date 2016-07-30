@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="drawerArrowStyle">@style/MaterialDrawer.DrawerArrowStyle</item>
+
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="CustomDigitsTheme" parent="Theme.AppCompat.Light">
@@ -36,7 +39,11 @@
         <item name="colorControlHighlight">@color/colorPrimary</item>
     </style>
 
-    <style name="AppTheme.CollapsingTextAppearance">
+    <style name="AppTheme.CollapsedTextAppearance">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="AppTheme.ExpandedTextAppearance">
         <item name="android:textColor">@color/white</item>
     </style>
 </resources>

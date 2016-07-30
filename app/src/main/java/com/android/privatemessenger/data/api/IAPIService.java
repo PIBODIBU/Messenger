@@ -30,6 +30,7 @@ public interface IAPIService {
     @POST("user/logout")
     Call<ErrorResponse> logout(@Field("token") String token);
 
+    @FormUrlEncoded
     @POST("my/gcm/id/update")
     Call<ErrorResponse> updateFCMId(@Field("token") String token, @Field("gcm") String id);
 

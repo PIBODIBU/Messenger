@@ -66,6 +66,7 @@ public class ContactActionDialog extends BottomSheetDialogFragment {
                 if (messageActionListener != null) {
                     messageActionListener.onUserProfile();
                 }
+                dialog.dismiss();
             }
         });
 

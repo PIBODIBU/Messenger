@@ -17,6 +17,7 @@ import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
+import com.android.privatemessenger.utils.IntentKeys;
 import com.digits.sdk.android.Digits;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -78,7 +79,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
      */
     public void getDrawer() {
         // Creating DrawerBuilder
-        createDrawerBuilder();
+        createDrawerBuilder(createToolbar());
 
         // Creating Drawer from DrawerBuilder
         createDrawer();
@@ -102,12 +103,31 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         }
     }
 
-    public void createDrawerBuilder() {
+    private Toolbar createToolbar() {
         // Инициализируем Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        return toolbar;
+    }
+
+    private Toolbar createToolbarWithBackArrow() {
+        // Инициализируем Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        return toolbar;
+    }
+
+    public void createDrawerBuilder(Toolbar toolbar) {
+        final PrimaryDrawerItem myProfile = new PrimaryDrawerItem()
+                .withName(getResources().getString(R.string.drawer_my_profile))
+                .withIcon(GoogleMaterial.Icon.gmd_person)
+                .withIdentifier(DrawerItems.MyProfileActivity.ordinal());
 
         final PrimaryDrawerItem chatList = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_chat_list))
@@ -152,6 +172,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withHeaderDivider(false)
                 .withSliderBackgroundColor(ContextCompat.getColor(this, android.R.color.white))
                 .addDrawerItems(
+                        myProfile,
                         chatList,
                         contacts,
                         call,
@@ -195,6 +216,17 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                             Log.d(TAG, "onItemClick()-> currentClass: " + currentClass);
 
                             switch (drawerItems) {
+                                case MyProfileActivity: {
+                                    if (currentClass.equals(MyProfileActivity.class.getSimpleName())) {
+                                        break;
+                                    } else {
+                                        startActivity(new Intent(BaseNavDrawerActivity.this, MyProfileActivity.class)
+                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                .putExtra(IntentKeys.OBJECT_USER, SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).getUser()));
+                                        finish();
+                                        break;
+                                    }
+                                }
                                 case ChatListActivity: {
                                     if (currentClass.equals(ChatListActivity.class.getSimpleName())) {
                                         break;
@@ -327,6 +359,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     }
 
     public enum DrawerItems {
+        MyProfileActivity,
         ChatListActivity,
         ContactListActivity,
         CallActivity,

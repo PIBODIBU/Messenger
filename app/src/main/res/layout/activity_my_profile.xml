@@ -41,7 +41,7 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_call"
+        android:id="@+id/fab_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
@@ -51,7 +51,6 @@
         app:layout_anchor="@+id/app_bar"
         app:layout_anchorGravity="bottom|end|right"
         app:rippleColor="@color/colorAccentLight"
-        app:srcCompat="@drawable/ic_call_white_24dp"
+        app:srcCompat="@drawable/ic_mode_edit_white_24dp"
         app:useCompatPadding="true" />
-
 </android.support.design.widget.CoordinatorLayout>

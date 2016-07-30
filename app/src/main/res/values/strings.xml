@@ -7,6 +7,7 @@
     <string name="twitter_key">AqEI6gYD1JX3QQGIbGMCoEZam</string>
     <string name="twitter_secret">p0B1B8XDpGrGkpQQJKsdaNN3948gZW6cQCNob19RZZgbAPcMmL</string>
 
+    <string name="drawer_my_profile">Мой профиль</string>
     <string name="drawer_chat_list">Диалоги</string>
     <string name="drawer_contacts">Контакты</string>
     <string name="drawer_call">Вызов</string>
@@ -15,6 +16,7 @@
     <string name="hint_name">Имя</string>
     <string name="hint_phone">Телефон</string>
     <string name="hint_type_message">Введите сообщение</string>
+    <string name="hint_email">Email</string>
 
     <string name="btn_login">Войти</string>
     <string name="btn_send">Отправить</string>
@@ -37,6 +39,11 @@
     <string name="menu_deactivate_selection_mode">Отмена</string>
     <string name="hint_chat_name">Название беседы</string>
     <string name="dialog_ok">OK</string>
+    <string name="dialog_yes">Да</string>
+    <string name="dialog_no">Нет</string>
     <string name="dialog_cancel">Отмена</string>
     <string name="title_activity_user_page">UserPageActivity</string>
+
+    <string name="no_info">Не указан</string>
+    <string name="dialog_before_exit_message">Вы уверены, что хотите выйти?</string>
 </resources>

@@ -73,4 +73,32 @@ public class User implements Serializable {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
+    public void setCreateDateTime(String createDateTime) {
+        this.createDateTime = createDateTime;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFcmId(String fcmId) {
+        this.fcmId = fcmId;
+    }
 }
