@@ -11,8 +11,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.data.api.RetrofitAPI;
+import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.digits.sdk.android.Digits;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -28,6 +31,9 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
 import io.fabric.sdk.android.Fabric;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BaseNavDrawerActivity extends AppCompatActivity {
 
@@ -56,9 +62,15 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
             drawer.setSelection(DrawerItems.ChatListActivity.ordinal());
         } else if (basename.equals(ContactListActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.ContactListActivity.ordinal());
+        } else if (basename.equals(CallActivity.class.getSimpleName())) {
+            drawer.setSelection(DrawerItems.CallActivity.ordinal());
         } else {
             drawer.setSelection(-1);
         }
+    }
+
+    protected void removeToolbarTitle() {
+        getSupportActionBar().setTitle("");
     }
 
     /**
@@ -203,12 +215,43 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                         break;
                                     }
                                 }
+                                case CallActivity: {
+                                    if (currentClass.equals(CallActivity.class.getSimpleName())) {
+                                        break;
+                                    } else {
+                                        startActivity(new Intent(BaseNavDrawerActivity.this, CallActivity.class)
+                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                        finish();
+                                        break;
+                                    }
+                                }
                                 case Exit: {
-                                    Digits.getSessionManager().clearActiveSession();
-                                    SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).clear();
-                                    startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
-                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                    finish();
+                                    Log.d(TAG, "onItemClick()-> exit clicked");
+                                    RetrofitAPI
+                                            .getInstance()
+                                            .logout(SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).getUser().getToken())
+                                            .enqueue(new Callback<ErrorResponse>() {
+                                                @Override
+                                                public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                                                    if (response == null || response.body() == null || response.body().isError()) {
+                                                        Toast.makeText(BaseNavDrawerActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                                                        return;
+                                                    }
+
+                                                    Digits.getSessionManager().clearActiveSession();
+                                                    SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).clear();
+                                                    startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                                    finish();
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                                                    Log.e(TAG, "onFailure()-> ", t);
+                                                    Toast.makeText(BaseNavDrawerActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+
                                 }
                                 default: {
                                     break;

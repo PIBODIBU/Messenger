@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.privatemessenger">
 
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -31,6 +32,9 @@
         <activity
             android:name=".ui.activity.ContactListActivity"
             android:label="@string/activity_contact_list" />
+        <activity
+            android:name=".ui.activity.CallActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" />
 
         <service android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>
@@ -43,6 +47,10 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".ui.activity.UserPageActivity"
+            android:label="@string/title_activity_user_page"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

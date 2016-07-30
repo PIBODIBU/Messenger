@@ -1,27 +1,43 @@
 package com.android.privatemessenger.ui.activity;
 
+import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.api.RetrofitAPI;
+import com.android.privatemessenger.data.model.Chat;
+import com.android.privatemessenger.data.model.ChatCreateResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ContactListAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.ChatCreateDialog;
+import com.android.privatemessenger.ui.dialog.ContactActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
+import com.android.privatemessenger.utils.RequestCodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,9 +52,13 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     @BindView(R.id.swipe_layout)
     public SwipeRefreshLayout swipeRefreshLayout;
 
+    @BindView(R.id.fab_create_chat)
+    public FloatingActionButton FABChatCreate;
+
     private ContactListAdapter adapter;
     private ArrayList<User> contactSet;
     private LinearLayoutManager layoutManager;
+    private MenuItem cancelMenulItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +75,98 @@ public class ContactListActivity extends BaseNavDrawerActivity {
         } else {
             loadData();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_contact_list, menu);
+
+        cancelMenulItem = menu.findItem(R.id.item_cancel);
+        cancelMenulItem.setVisible(false);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.item_cancel:
+                deactivateSelectionMode();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @OnClick(R.id.fab_create_chat)
+    public void createChat() {
+        if (!adapter.isSelectionModeActivated()) {
+            activateSelectionMode();
+            return;
+        }
+
+        List<UserId> userIds = new ArrayList<>();
+        for (User user : adapter.getDataSet()) {
+            if (user.isSelected()) {
+                userIds.add(new UserId(user.getId()));
+            }
+        }
+
+        if (userIds.size() == 0) {
+            return;
+        }
+
+        userIds.add(new UserId(SharedPrefUtils.getInstance(this).getUser().getId()));
+
+        final HashMap<String, Object> data = new HashMap<>();
+        data.put("user_ids", userIds);
+
+        ChatCreateDialog dialog = new ChatCreateDialog();
+        dialog.setChatCreateCallbacks(new ChatCreateDialog.ChatCreateCallbacks() {
+            @Override
+            public void onChatCreate(String chatName) {
+                data.put("chat_name", chatName);
+
+                final ProgressDialog progressDialog = new ProgressDialog(ContactListActivity.this);
+                progressDialog.setCancelable(false);
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.setMessage(getResources().getString(R.string.dialog_loading));
+                progressDialog.show();
+
+                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                    @Override
+                    public void onResponse(Call<Chat> call, Response<Chat> response) {
+                        if (response != null & response.body() != null) {
+                            redirectToChatRoom(response.body());
+                        } else {
+                            Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                        }
+
+                        progressDialog.cancel();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Chat> call, Throwable t) {
+                        Log.e(TAG, "onFailure()-> ", t);
+                        Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                        progressDialog.cancel();
+                    }
+                });
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "ChatCreateDialog");
+    }
+
+    private void activateSelectionMode() {
+        FABChatCreate.setImageResource(R.drawable.ic_done_white_24dp);
+        adapter.setSelectionModeActivated(true);
+        cancelMenulItem.setVisible(true);
+    }
+
+    private void deactivateSelectionMode() {
+        FABChatCreate.setImageResource(R.drawable.ic_add_white_24dp);
+        adapter.setSelectionModeActivated(false);
+        cancelMenulItem.setVisible(false);
     }
 
     @Override
@@ -105,6 +217,16 @@ public class ContactListActivity extends BaseNavDrawerActivity {
         });
     }
 
+    private void redirectToChatRoom(Chat chat) {
+        try {
+            Intent intent = new Intent(ContactListActivity.this, ChatActivity.class)
+                    .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chat);
+            startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
+        } catch (Exception ex) {
+            Log.e(TAG, "onClick()-> ", ex);
+        }
+    }
+
     private void setupRecyclerView() {
         contactSet = new ArrayList<>();
 
@@ -112,7 +234,59 @@ public class ContactListActivity extends BaseNavDrawerActivity {
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
+                final User user = adapter.getDataSet().get(position);
+                ContactActionDialog dialog = new ContactActionDialog();
 
+                dialog.setMessageActionListener(new ContactActionDialog.MessageActionListener() {
+                    @Override
+                    public void onCall() {
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onStartDialog() {
+                        HashMap<String, Object> data = new HashMap<String, Object>();
+                        List<UserId> userIds = new ArrayList<>();
+
+                        userIds.add(new UserId(user.getId()));
+                        userIds.add(new UserId(SharedPrefUtils.getInstance(ContactListActivity.this).getUser().getId()));
+
+                        data.put("user_ids", userIds);
+                        data.put("chat_name", "Dialog");
+
+                        RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                            @Override
+                            public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                if (response != null & response.body() != null) {
+                                    redirectToChatRoom(response.body());
+                                } else {
+                                    Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Chat> call, Throwable t) {
+                                Log.e(TAG, "onFailure()-> ", t);
+                                Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCopyName() {
+                        ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
+                    }
+
+                    @Override
+                    public void onUserProfile() {
+                        Intent intent = new Intent(ContactListActivity.this, UserPageActivity.class)
+                                .putExtra(IntentKeys.OBJECT_USER, user);
+                        startActivity(intent);
+                    }
+                });
+
+                dialog.show(getSupportFragmentManager(), "ContactListAdapter");
             }
 
             @Override

@@ -98,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPrefUtils.getInstance(LoginActivity.this).setUser(response.body().getUser());
                         progressDialog.cancel();
                         startActivity(new Intent(LoginActivity.this, ChatListActivity.class));
-                        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
                         finish();
                     }
 
@@ -125,9 +124,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    public void finish() {
-        super.finish();
-        overridePendingTransition(R.anim.push_out_right, R.anim.pull_in_left);
+    public void startActivity(Intent intent) {
+        super.startActivity(intent);
+
+        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }
 
     @OnClick(R.id.btn_login)

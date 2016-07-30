@@ -19,12 +19,24 @@
     <string name="btn_login">Войти</string>
     <string name="btn_send">Отправить</string>
 
+    <string name="tv_retry">Повторить попытку</string>
+    <string name="tv_delete_message">Удалить</string>
+    <string name="tv_copy">Копировать</string>
+
     <string name="toast_login_fail">Ошибка авторизации</string>
     <string name="toast_loading_error">Произошла ошибка</string>
     <string name="toast_too_long_message">Слишком длинное сообщение</string>
     <string name="toast_must_start_from">Номер должен начинаться с +</string>
     <string name="toast_send_error">Ошибка при отправке</string>
     <string name="toast_enter_name">Введите имя</string>
+    <string name="toast_copied">Скопировано в буфер обмена</string>
+    <string name="toast_create_error">Ошибка при создании</string>
 
     <string name="dialog_loading">Загрузка…</string>
+
+    <string name="menu_deactivate_selection_mode">Отмена</string>
+    <string name="hint_chat_name">Название беседы</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="title_activity_user_page">UserPageActivity</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.android.privatemessenger.ui.activity;
 
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,6 +27,7 @@ import com.android.privatemessenger.ui.adapter.ChatAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
+import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.Values;
 
@@ -56,6 +59,9 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
     private BroadcastReceiver messageReceiver;
 
+    private int loadingOffset = 0;
+    private int loadingCount = Values.MESSAGE_LOADING_COUNT;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +80,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupReceivers();
-        loadData(true);
+        loadData(true, true);
     }
 
     @Override
@@ -86,8 +92,8 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         ActivityWatcher.setChatActivityShowing(false);
+        super.onPause();
     }
 
     public void sendMessage(final Message message) {
@@ -156,17 +162,17 @@ public class ChatActivity extends BaseNavDrawerActivity {
         );
     }
 
-    private void loadData(final boolean addLoadingItem) {
+    private void loadData(final boolean addLoadingItem, final boolean scrollToEnd) {
         final int loadingItemPosition = addLoadingItem ? adapter.addRefreshItem() : -1;
 
-        RetrofitAPI.getInstance().getChatMessages(chat.getId(), SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Message>>() {
+        RetrofitAPI.getInstance().getChatMessages(chat.getId(), SharedPrefUtils.getInstance(this).getUser().getToken(), loadingCount, loadingOffset).enqueue(new Callback<List<Message>>() {
             private void onError() {
                 Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
             }
 
             private void onEnd() {
-               /* if (addLoadingItem)
-                    adapter.removeRefreshItem(loadingItemPosition);*/
+                if (addLoadingItem)
+                    adapter.removeRefreshItem(loadingItemPosition);
 
                 adapter.setLoaded();
             }
@@ -183,8 +189,10 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 }
 
                 adapter.notifyDataSetChanged();
-                recyclerView.scrollToPosition(0);
+                if (scrollToEnd)
+                    recyclerView.scrollToPosition(0);
                 onEnd();
+                incrementLoadingOffset();
             }
 
             @Override
@@ -194,6 +202,10 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 onEnd();
             }
         });
+    }
+
+    private void incrementLoadingOffset() {
+        loadingOffset += loadingCount;
     }
 
     private void setupRecyclerView() {
@@ -216,9 +228,9 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 final Message message = adapter.getMessage(position);
 
                 if (message.getSendStatus() == Message.STATUS_ERROR) {
-                    MessageActionDialog dialog = new MessageActionDialog();
+                    MessageErrorActionDialog dialog = new MessageErrorActionDialog();
 
-                    dialog.setMessageActionListener(new MessageActionDialog.MessageActionListener() {
+                    dialog.setMessageErrorActionListener(new MessageErrorActionDialog.MessageErrorActionListener() {
                         @Override
                         public void onRetry() {
                             adapter.getDataSet().remove(message);
@@ -229,6 +241,18 @@ public class ChatActivity extends BaseNavDrawerActivity {
                         @Override
                         public void onDelete() {
                             adapter.removeMessage(position);
+                        }
+                    });
+
+                    dialog.show(getSupportFragmentManager(), "MessageErrorActionDialog");
+                } else if (message.getSendStatus() == Message.STATUS_SENT) {
+                    MessageActionDialog dialog = new MessageActionDialog();
+
+                    dialog.setMessageActionListener(new MessageActionDialog.MessageActionListener() {
+                        @Override
+                        public void onCopy() {
+                            ((ClipboardManager) ChatActivity.this.getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Message", message.getMessage()));
+                            Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_copied), Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -245,7 +269,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-
+                loadData(true, false);
             }
         });
     }

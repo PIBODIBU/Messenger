@@ -1,16 +1,16 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
-import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.User;
 
 import java.util.ArrayList;
@@ -24,6 +24,8 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
     private Context context;
     private ArrayList<User> dataSet;
     private RecyclerItemClickListener recyclerItemClickListener;
+
+    private boolean selectionModeActivated = false;
 
     public ContactListAdapter(Context context, ArrayList<User> dataSet) {
         this.context = context;
@@ -40,6 +42,12 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         @BindView(R.id.tv_phone)
         public TextView TVPhone;
 
+        @BindView(R.id.tv_contact_image)
+        public TextView TVContactImageText;
+
+        @BindView(R.id.cb_select)
+        public AppCompatCheckBox APCBSelect;
+
         public BaseViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -54,15 +62,35 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     @Override
     public void onBindViewHolder(final BaseViewHolder holder, final int position) {
-        RelativeLayout LLRootView = holder.RLRootView;
-        TextView TVName = holder.TVName;
-        TextView TVPhone = holder.TVPhone;
-        User user = dataSet.get(position);
+        if (dataSet == null) {
+            return;
+        }
 
-        TVName.setText(user.getName());
-        TVPhone.setText(user.getPhone());
+        final User user = dataSet.get(position);
 
-        LLRootView.setOnClickListener(new View.OnClickListener() {
+        if (user == null) {
+            return;
+        }
+
+        if (isSelectionModeActivated()) {
+            holder.APCBSelect.setVisibility(View.VISIBLE);
+        } else {
+            holder.APCBSelect.setVisibility(View.INVISIBLE);
+        }
+
+        holder.TVName.setText(user.getName());
+        holder.TVPhone.setText(user.getPhone());
+        holder.APCBSelect.setChecked(user.isSelected());
+        holder.TVContactImageText.setText(String.valueOf(user.getName().charAt(0)).toUpperCase());
+
+        holder.APCBSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                user.setSelected(isChecked);
+            }
+        });
+
+        holder.RLRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (recyclerItemClickListener != null) {
@@ -70,7 +98,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
                 }
             }
         });
-        LLRootView.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.RLRootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if (recyclerItemClickListener != null) {
@@ -93,6 +121,15 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
 
     public ArrayList<User> getDataSet() {
         return dataSet;
+    }
+
+    public boolean isSelectionModeActivated() {
+        return selectionModeActivated;
+    }
+
+    public void setSelectionModeActivated(boolean selectionModeActivated) {
+        this.selectionModeActivated = selectionModeActivated;
+        notifyDataSetChanged();
     }
 
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {

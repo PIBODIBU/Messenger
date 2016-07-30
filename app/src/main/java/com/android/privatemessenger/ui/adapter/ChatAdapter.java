@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final String TAG = ChatAdapter.this.getClass().getSimpleName();
 
@@ -98,85 +98,94 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
 
         Log.d(TAG, "onCreateViewHolder()-> viewType: " + viewType);
 
         if (viewType == Message.TYPE_MY) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_my, parent, false);
+            return new BaseViewHolder(view);
         } else if (viewType == Message.TYPE_FOREIGN) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_foreign, parent, false);
+            return new BaseViewHolder(view);
         } else if (viewType == TYPE_LOADING) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_progress_item, parent, false);
+            return new ProgressViewHolder(view);
         } else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_foreign, parent, false);
+            return new BaseViewHolder(view);
         }
-
-        return new BaseViewHolder(view);
     }
 
     @Override
     public int getItemViewType(int position) {
         if (dataSet.get(position) == null) {
+            Log.d(TAG, "getItemViewType()-> " + TYPE_LOADING);
             return TYPE_LOADING;
         } else {
+            Log.d(TAG, "getItemViewType()-> " + dataSet.get(position).getType(context));
             return dataSet.get(position).getType(context);
         }
     }
 
     @Override
-    public void onBindViewHolder(final BaseViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+        if (holder instanceof BaseViewHolder) {
+            BaseViewHolder baseViewHolder = (BaseViewHolder) holder;
 
-        TextView TVMessage = holder.TVMessage;
-        TextView TVSender = holder.TVSender;
-        TextView TVTime = holder.TVTime;
-        ImageView IVSendStatus = holder.IVSendStatus;
-        Message message = dataSet.get(position);
+            TextView TVMessage = baseViewHolder.TVMessage;
+            TextView TVSender = baseViewHolder.TVSender;
+            TextView TVTime = baseViewHolder.TVTime;
+            ImageView IVSendStatus = baseViewHolder.IVSendStatus;
+            Message message = dataSet.get(position);
 
-        TVMessage.setText(message.getMessage());
-        TVSender.setText(message.getSender() == null ? "" : message.getSender().getName());
+            TVMessage.setText(message.getMessage());
+            TVSender.setText(message.getSender() == null ? "" : message.getSender().getName());
 
-        switch (message.getSendStatus()) {
-            case Message.STATUS_SENDING: {
-                TVTime.setText("");
-                IVSendStatus.setImageResource(R.drawable.ic_schedule_grey_18dp);
-                break;
+            switch (message.getSendStatus()) {
+                case Message.STATUS_SENDING: {
+                    TVTime.setText("");
+                    IVSendStatus.setImageResource(R.drawable.ic_schedule_grey_18dp);
+                    break;
+                }
+                case Message.STATUS_ERROR: {
+                    TVTime.setText("");
+                    IVSendStatus.setImageResource(R.drawable.ic_remove_circle_outline_red_18dp);
+                    break;
+                }
+                case Message.STATUS_SENT: {
+                    TVTime.setText(message.getFormattedDate());
+                    IVSendStatus.setImageDrawable(null);
+                    break;
+                }
+                default:
+                    TVTime.setText(message.getFormattedDate());
+                    IVSendStatus.setImageDrawable(null);
+                    break;
             }
-            case Message.STATUS_ERROR: {
-                TVTime.setText("");
-                IVSendStatus.setImageResource(R.drawable.ic_remove_circle_outline_red_18dp);
-                break;
-            }
-            case Message.STATUS_SENT: {
-                TVTime.setText(message.getFormattedDate());
-                IVSendStatus.setImageDrawable(null);
-                break;
-            }
-            default:
-                TVTime.setText(message.getFormattedDate());
-                IVSendStatus.setImageDrawable(null);
-                break;
+
+            TVMessage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (recyclerItemClickListener != null) {
+                        recyclerItemClickListener.onClick(holder.getAdapterPosition());
+                    }
+                }
+            });
+            TVMessage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (recyclerItemClickListener != null) {
+                        recyclerItemClickListener.onLongClick(holder.getAdapterPosition());
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        } else if (holder instanceof ProgressViewHolder) {
+
         }
-
-        TVMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (recyclerItemClickListener != null) {
-                    recyclerItemClickListener.onClick(holder.getAdapterPosition());
-                }
-            }
-        });
-        TVMessage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (recyclerItemClickListener != null) {
-                    recyclerItemClickListener.onLongClick(holder.getAdapterPosition());
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     @Override

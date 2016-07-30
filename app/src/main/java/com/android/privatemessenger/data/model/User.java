@@ -26,6 +26,8 @@ public class User implements Serializable {
     @SerializedName("created_at")
     private String createDateTime;
 
+    private boolean selected;
+
     public User(int id, String token, String name, String phone, String email, String fcmId, String createDateTime) {
         this.id = id;
         this.token = token;
@@ -62,5 +64,13 @@ public class User implements Serializable {
 
     public String getCreateDateTime() {
         return createDateTime;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

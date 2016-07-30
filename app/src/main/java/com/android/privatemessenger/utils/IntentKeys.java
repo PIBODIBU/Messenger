@@ -2,6 +2,8 @@ package com.android.privatemessenger.utils;
 
 public class IntentKeys {
     public static final String OBJECT_CHAT = "com.android.privatemessenger.object_chat";
+    public static final String OBJECT_USER = "com.android.privatemessenger.object_user";
+
     public static final String ARRAY_LIST_CHAT = "com.android.privatemessenger.array_list_chat";
     public static final String ARRAY_LIST_MESSAGE = "com.android.privatemessenger.array_list_message";
     public static final String ARRAY_LIST_CONTACT = "com.android.privatemessenger.array_list_contact";

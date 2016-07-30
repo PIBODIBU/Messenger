@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_copy"
+            android:id="@+id/tv_retry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/item_bg"
@@ -20,7 +20,20 @@
             android:paddingLeft="24dp"
             android:paddingRight="24dp"
             android:paddingTop="16dp"
-            android:text="@string/tv_copy"
+            android:text="@string/tv_retry"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/item_bg"
+            android:paddingBottom="16dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="16dp"
+            android:text="@string/tv_delete_message"
             android:textColor="@color/colorTextPrimary"
             android:textSize="16sp" />
     </LinearLayout>

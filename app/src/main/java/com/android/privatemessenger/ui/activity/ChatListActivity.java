@@ -25,6 +25,7 @@ import com.android.privatemessenger.ui.adapter.ChatListAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
+import com.android.privatemessenger.utils.Values;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -142,7 +143,13 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     }
 
     private void loadData() {
-        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
+
         Log.d(TAG, "loadData()-> Refreshing: " + swipeRefreshLayout.isRefreshing());
 
         RetrofitAPI.getInstance().getMyChats(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Chat>>() {
@@ -193,9 +200,13 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
-                Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
-                        .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chatSet.get(position));
-                startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
+                try {
+                    Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
+                            .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chatSet.get(position));
+                    startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
+                } catch (IndexOutOfBoundsException ex) {
+                    Log.e(TAG, "onClick()-> ", ex);
+                }
             }
 
             @Override

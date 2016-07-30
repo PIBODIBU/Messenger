@@ -1,15 +1,19 @@
 package com.android.privatemessenger.data.api;
 
 import com.android.privatemessenger.data.model.Chat;
+import com.android.privatemessenger.data.model.ChatCreateResponse;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.LoginResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.model.UserId;
 
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -22,18 +26,25 @@ public interface IAPIService {
     @POST("user/login")
     Call<LoginResponse> login(@Field("name") String name, @Field("phone") String phone);
 
-    @GET("my/gcm/id/update")
-    Call<ErrorResponse> updateFCMId(@Query("token") String token, @Query("gcm") String id);
+    @FormUrlEncoded
+    @POST("user/logout")
+    Call<ErrorResponse> logout(@Field("token") String token);
+
+    @POST("my/gcm/id/update")
+    Call<ErrorResponse> updateFCMId(@Field("token") String token, @Field("gcm") String id);
 
     @GET("my/chats")
     Call<List<Chat>> getMyChats(@Query("token") String token);
 
     @GET("chat/{id}/messages")
-    Call<List<Message>> getChatMessages(@Path("id") int chatId, @Query("token") String token);
+    Call<List<Message>> getChatMessages(@Path("id") int chatId, @Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
 
     @GET("contacts")
     Call<List<User>> getContacts(@Query("token") String token);
 
     @GET("chat/{id}/on_message")
     Call<SendMessageResponse> sendMessage(@Path("id") int chatId, @Query("token") String token, @Query("message") String message);
+
+    @POST("chat/create")
+    Call<Chat> createChat(@Body HashMap<String, Object> data);
 }

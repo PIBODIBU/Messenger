@@ -7,28 +7,35 @@
     android:background="@drawable/item_bg"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/iv_account"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+    <TextView
+        android:id="@+id/tv_contact_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        app:srcCompat="@drawable/ic_account_circle_primary_24dp" />
+        android:background="@drawable/contact_image_bg"
+        android:gravity="center"
+        android:text="R"
+        android:textColor="@color/white"
+        android:textSize="30sp" />
 
     <LinearLayout
         android:id="@+id/ll_container_user_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:layout_toEndOf="@+id/iv_account"
-        android:layout_toRightOf="@+id/iv_account"
+        android:layout_toEndOf="@+id/tv_contact_image"
+        android:layout_toLeftOf="@+id/cb_select"
+        android:layout_toRightOf="@+id/tv_contact_image"
+        android:layout_toStartOf="@+id/cb_select"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLines="2"
             android:text="Roman Svyatnenko"
             android:textColor="@color/colorTextPrimary"
             android:textSize="18sp" />
@@ -38,10 +45,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:maxLines="1"
             android:text="+380930535204"
             android:textColor="@color/colorTextSecondary"
             android:textSize="14sp" />
     </LinearLayout>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/cb_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:visibility="invisible"
+        app:buttonTint="@color/colorPrimary" />
 
     <View
         android:layout_width="match_parent"

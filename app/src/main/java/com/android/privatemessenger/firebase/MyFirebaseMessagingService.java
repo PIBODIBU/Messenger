@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.application.ActivityWatcher;
@@ -21,15 +22,17 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-       /* for (Map.Entry entry : remoteMessage.getData().entrySet()) {
+        for (Map.Entry entry : remoteMessage.getData().entrySet()) {
             Log.d(TAG, "onMessageReceived()-> " + entry.getKey() + " --- " + entry.getValue());
-        }*/
+        }
 
         try {
             JSONObject jsonMessage = new JSONObject(remoteMessage.getData().get(BroadcastKeys.JSON_OBJECT_MESSAGE));
