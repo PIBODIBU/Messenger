@@ -59,17 +59,4 @@
         app:srcCompat="@drawable/ic_mode_edit_white_24dp"
         app:useCompatPadding="true" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|right"
-        android:layout_margin="@dimen/fab_margin"
-        android:clickable="true"
-        app:backgroundTint="@color/colorAccent"
-        app:fabSize="normal"
-        app:layout_anchor="@+id/nestedScrollView2"
-        app:layout_anchorGravity="top|left"
-        app:rippleColor="@color/colorAccentLight"
-        app:useCompatPadding="true" />
 </android.support.design.widget.CoordinatorLayout>

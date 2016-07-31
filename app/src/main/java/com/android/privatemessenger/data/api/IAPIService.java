@@ -22,6 +22,9 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface IAPIService {
+    String PARAM_USER_IDS = "user_ids";
+    String PARAM_CHAT_NAME = "chat_name";
+
     @FormUrlEncoded
     @POST("user/login")
     Call<LoginResponse> login(@Field("name") String name, @Field("phone") String phone);

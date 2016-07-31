@@ -18,16 +18,16 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.data.api.IAPIService;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
-import com.android.privatemessenger.data.model.ChatCreateResponse;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ContactListAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.ActionDialog;
 import com.android.privatemessenger.ui.dialog.ChatCreateDialog;
-import com.android.privatemessenger.ui.dialog.ContactActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
 
@@ -240,58 +240,83 @@ public class ContactListActivity extends BaseNavDrawerActivity {
             @Override
             public void onClick(int position) {
                 final User user = adapter.getDataSet().get(position);
-                ContactActionDialog dialog = new ContactActionDialog();
 
-                dialog.setMessageActionListener(new ContactActionDialog.MessageActionListener() {
-                    @Override
-                    public void onCall() {
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onStartDialog() {
-                        HashMap<String, Object> data = new HashMap<String, Object>();
-                        List<UserId> userIds = new ArrayList<>();
-
-                        userIds.add(new UserId(user.getId()));
-                        userIds.add(new UserId(SharedPrefUtils.getInstance(ContactListActivity.this).getUser().getId()));
-
-                        data.put("user_ids", userIds);
-                        data.put("chat_name", "Dialog");
-
-                        RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                ActionDialog actionDialog = new ActionDialog.Builder(getSupportFragmentManager(), ContactListActivity.this)
+                        .setCloseAfterItemSelected(true)
+                        .addItem(new ActionDialog.SimpleActionItem("Профиль", new ActionDialog.OnItemClickListener() {
                             @Override
-                            public void onResponse(Call<Chat> call, Response<Chat> response) {
-                                if (response != null & response.body() != null) {
-                                    redirectToChatRoom(response.body());
-                                } else {
-                                    Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                                }
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                Intent intent = new Intent(ContactListActivity.this, UserPageActivity.class)
+                                        .putExtra(IntentKeys.OBJECT_USER, user);
+                                startActivity(intent);
                             }
 
                             @Override
-                            public void onFailure(Call<Chat> call, Throwable t) {
-                                Log.e(TAG, "onFailure()-> ", t);
-                                Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
                             }
-                        });
-                    }
+                        }))
+                        .addItem(new ActionDialog.SimpleActionItem("Вызов", new ActionDialog.OnItemClickListener() {
+                            @Override
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
+                                startActivity(intent);
+                            }
 
-                    @Override
-                    public void onCopyName() {
-                        ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
-                    }
+                            @Override
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                            }
+                        }))
+                        .addItem(new ActionDialog.SimpleActionItem("Начать беседу", new ActionDialog.OnItemClickListener() {
+                            @Override
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                HashMap<String, Object> data = new HashMap<String, Object>();
+                                List<UserId> userIds = new ArrayList<>();
 
-                    @Override
-                    public void onUserProfile() {
-                        Intent intent = new Intent(ContactListActivity.this, UserPageActivity.class)
-                                .putExtra(IntentKeys.OBJECT_USER, user);
-                        startActivity(intent);
-                    }
-                });
+                                userIds.add(new UserId(user.getId()));
+                                userIds.add(new UserId(SharedPrefUtils.getInstance(ContactListActivity.this).getUser().getId()));
 
-                dialog.show(getSupportFragmentManager(), "ContactListAdapter");
+                                data.put(IAPIService.PARAM_USER_IDS, userIds);
+                                data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+
+                                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                    @Override
+                                    public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                        if (response != null & response.body() != null) {
+                                            redirectToChatRoom(response.body());
+                                        } else {
+                                            Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Chat> call, Throwable t) {
+                                        Log.e(TAG, "onFailure()-> ", t);
+                                        Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                            }
+                        }))
+                        .addItem(new ActionDialog.SimpleActionItem("Копировать имя", new ActionDialog.OnItemClickListener() {
+                            @Override
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
+                                Toast.makeText(
+                                        ContactListActivity.this,
+                                        getResources().getString(R.string.toast_copied),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                            }
+                        }))
+                        .build();
+
+                actionDialog.show();
             }
 
             @Override
