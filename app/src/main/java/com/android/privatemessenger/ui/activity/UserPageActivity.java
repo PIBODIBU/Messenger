@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -60,8 +61,10 @@ public class UserPageActivity extends BaseNavDrawerActivity {
         collapsingToolbar.setCollapsedTitleTextColor(colorWhite);
         collapsingToolbar.setExpandedTitleColor(colorWhite);
 
-        TVPhone.setText(user.getPhone() == null ? getResources().getString(R.string.no_info) : user.getPhone());
-        TVEmail.setText(user.getEmail() == null ? getResources().getString(R.string.no_info) : user.getEmail());
+        TVPhone.setText(user.getPhone() == null || TextUtils.isEmpty(user.getPhone()) ?
+                getResources().getString(R.string.no_info) : user.getPhone());
+        TVEmail.setText(user.getEmail() == null || TextUtils.isEmpty(user.getEmail()) ?
+                getResources().getString(R.string.no_info) : user.getEmail());
     }
 
     private void setCollapsingToolbarTitle(String title) {

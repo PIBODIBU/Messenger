@@ -93,4 +93,9 @@
             android:textSize="18sp"
             android:theme="@style/AppTheme.EditTextStyle" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1000dp" />
+
 </LinearLayout>

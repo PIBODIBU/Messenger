@@ -9,7 +9,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -48,6 +52,9 @@ public class MyProfileEditActivity extends AppCompatActivity {
 
     @BindView(R.id.et_email)
     public EditText ETEmail;
+
+    @BindColor(R.color.white)
+    public int colorWhite;
 
     private User user;
 
@@ -168,8 +175,37 @@ public class MyProfileEditActivity extends AppCompatActivity {
     }
 
     private void initLayout() {
-        ETName.setText(user.getName());
-        TVPhone.setText(user.getPhone());
-        ETEmail.setText(user.getEmail());
+        collapsingToolbar.setCollapsedTitleTextColor(colorWhite);
+        collapsingToolbar.setExpandedTitleColor(colorWhite);
+
+        TVPhone.setText(user.getPhone() == null || TextUtils.isEmpty(user.getPhone()) ?
+                getResources().getString(R.string.no_info) : user.getPhone());
+
+        ETEmail.setText(user.getEmail() == null || TextUtils.isEmpty(user.getEmail()) ?
+                "" : user.getEmail());
+
+        ETName.setText(user.getEmail() == null || TextUtils.isEmpty(user.getEmail()) ?
+                "" : user.getEmail());
+
+        collapsingToolbar.setTitle(user.getName() == null || TextUtils.isEmpty(user.getName()) ?
+                "" : user.getName());
+
+        ETName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                collapsingToolbar.setTitle(TextUtils.isEmpty(String.valueOf(s)) ?
+                        user.getName() == null || TextUtils.isEmpty(user.getName()) ? "" : user.getName() : String.valueOf(s));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 }

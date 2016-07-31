@@ -1,10 +1,16 @@
 package com.android.privatemessenger.ui.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.v4.text.TextUtilsCompat;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
@@ -69,8 +75,10 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
     }
 
     private void updateUI() {
-        TVPhone.setText(user.getPhone() == null ? getResources().getString(R.string.no_info) : user.getPhone());
-        TVEmail.setText(user.getEmail() == null ? getResources().getString(R.string.no_info) : user.getEmail());
+        TVPhone.setText(user.getPhone() == null || TextUtils.isEmpty(user.getPhone()) ?
+                getResources().getString(R.string.no_info) : user.getPhone());
+        TVEmail.setText(user.getEmail() == null || TextUtils.isEmpty(user.getEmail()) ?
+                getResources().getString(R.string.no_info) : user.getEmail());
 
         setCollapsingToolbarTitle(user.getName() == null ? "" : user.getName());
     }
