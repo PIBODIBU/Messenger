@@ -211,6 +211,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 if (chatSet != null) {
                     chatSet.clear();
                 }
+                isEndReached = false;
                 dropLoadingOffset();
                 loadData(false);
             }
