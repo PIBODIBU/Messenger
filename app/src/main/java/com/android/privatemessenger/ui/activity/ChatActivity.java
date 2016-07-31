@@ -165,7 +165,12 @@ public class ChatActivity extends BaseNavDrawerActivity {
     private void loadData(final boolean addLoadingItem, final boolean scrollToEnd) {
         final int loadingItemPosition = addLoadingItem ? adapter.addRefreshItem() : -1;
 
-        RetrofitAPI.getInstance().getChatMessages(chat.getId(), SharedPrefUtils.getInstance(this).getUser().getToken(), loadingCount, loadingOffset).enqueue(new Callback<List<Message>>() {
+        RetrofitAPI.getInstance().getChatMessages(
+                chat.getId(),
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                loadingCount,
+                loadingOffset
+        ).enqueue(new Callback<List<Message>>() {
             private void onError() {
                 Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
             }

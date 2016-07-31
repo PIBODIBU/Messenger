@@ -41,7 +41,6 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_profile);
         ButterKnife.bind(this);
-        Slidr.attach(this);
 
         if (!getUserFromIntent()) {
             return;
@@ -115,5 +114,19 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
 
         user = (User) getIntent().getSerializableExtra(IntentKeys.OBJECT_USER);
         return true;
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        super.startActivityForResult(intent, requestCode);
+
+        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        super.startActivity(intent);
+
+        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }
 }

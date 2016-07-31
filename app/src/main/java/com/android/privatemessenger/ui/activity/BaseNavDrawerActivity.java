@@ -63,6 +63,8 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
             drawer.setSelection(DrawerItems.ChatListActivity.ordinal());
         } else if (basename.equals(ContactListActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.ContactListActivity.ordinal());
+        } else if (basename.equals(MyProfileActivity.class.getSimpleName())) {
+            drawer.setSelection(DrawerItems.MyProfileActivity.ordinal());
         } else if (basename.equals(CallActivity.class.getSimpleName())) {
             drawer.setSelection(DrawerItems.CallActivity.ordinal());
         } else {
@@ -131,7 +133,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
         final PrimaryDrawerItem chatList = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_chat_list))
-                .withIcon(GoogleMaterial.Icon.gmd_reorder)
+                .withIcon(GoogleMaterial.Icon.gmd_chat)
                 .withIdentifier(DrawerItems.ChatListActivity.ordinal());
 
         final PrimaryDrawerItem contacts = new PrimaryDrawerItem()
@@ -348,6 +350,13 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     @Override
     public void startActivity(Intent intent) {
         super.startActivity(intent);
+
+        overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        super.startActivityForResult(intent, requestCode);
 
         overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }

@@ -10,18 +10,25 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.utils.IntentKeys;
 
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MyProfileEditActivity extends AppCompatActivity {
 
@@ -39,7 +46,7 @@ public class MyProfileEditActivity extends AppCompatActivity {
     @BindView(R.id.tv_phone)
     public TextView TVPhone;
 
-    @BindView(R.id.tv_email)
+    @BindView(R.id.et_email)
     public EditText ETEmail;
 
     private User user;
@@ -62,21 +69,25 @@ public class MyProfileEditActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                showExitDialog();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     @Override
-    public void finish() {
+    public void onBackPressed() {
+        showExitDialog();
+    }
+
+    private void showExitDialog() {
         final AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.dialog_before_exit_message))
                 .setPositiveButton(getResources().getString(R.string.dialog_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        MyProfileEditActivity.super.finish();
+                        finish();
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.dialog_no), new DialogInterface.OnClickListener() {
@@ -103,11 +114,43 @@ public class MyProfileEditActivity extends AppCompatActivity {
 
     @OnClick(R.id.fab_done)
     public void done() {
-        user.setName(ETName.getText().toString());
-        user.setEmail(ETEmail.getText().toString());
+        if (!isInputValid()) {
+            return;
+        }
 
-        setResult(RESULT_OK, new Intent()
-                .putExtra(IntentKeys.OBJECT_USER, user));
+        RetrofitAPI.getInstance().updateMyInfo(
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                ETName.getText().toString(),
+                ETEmail.getText().toString()
+        ).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response == null || response.body() == null) {
+                    Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                setResult(RESULT_OK, new Intent()
+                        .putExtra(IntentKeys.OBJECT_USER, response.body()));
+                finish();
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onFailure()-> ", t);
+            }
+        });
+    }
+
+    private boolean isInputValid() {
+        String name = ETName.getText().toString();
+        String email = ETEmail.getText().toString();
+
+        if (name.equals("") || email.equals(""))
+            return false;
+        else
+            return true;
     }
 
     private void createToolbar() {

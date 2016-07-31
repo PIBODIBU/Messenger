@@ -35,7 +35,7 @@ public interface IAPIService {
     Call<ErrorResponse> updateFCMId(@Field("token") String token, @Field("gcm") String id);
 
     @GET("my/chats")
-    Call<List<Chat>> getMyChats(@Query("token") String token);
+    Call<List<Chat>> getMyChats(@Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
 
     @GET("chat/{id}/messages")
     Call<List<Message>> getChatMessages(@Path("id") int chatId, @Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
@@ -48,4 +48,11 @@ public interface IAPIService {
 
     @POST("chat/create")
     Call<Chat> createChat(@Body HashMap<String, Object> data);
+
+    @FormUrlEncoded
+    @POST("my/profile/update")
+    Call<User> updateMyInfo(@Field("token") String token, @Field("name") String name, @Field("email") String email);
+
+    @GET("chat/{id}/delete")
+    Call<ErrorResponse> deleteChat(@Path("id") int chatId, @Query("token") String token);
 }

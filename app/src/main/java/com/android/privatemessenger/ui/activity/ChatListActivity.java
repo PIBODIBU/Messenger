@@ -22,6 +22,7 @@ import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
+import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
@@ -53,6 +54,10 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
     private BroadcastReceiver messageReceiver;
 
+    private int loadingOffset = 0;
+    private int loadingCount = Values.CHAT_LOADING_COUNT;
+    private boolean isEndReached = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +68,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupSwipeRefresh();
-        loadData();
+        loadData(true);
         setupReceivers();
         updateGCMId();
     }
@@ -142,31 +147,41 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
-    private void loadData() {
-        swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(true);
-            }
-        });
+    private void loadData(final boolean addLoadingItem) {
+        final int loadingItemPosition = addLoadingItem ? adapter.addRefreshItem() : -1;
 
         Log.d(TAG, "loadData()-> Refreshing: " + swipeRefreshLayout.isRefreshing());
 
-        RetrofitAPI.getInstance().getMyChats(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Chat>>() {
-            private void onComplete() {
+        RetrofitAPI.getInstance().getMyChats(
+                SharedPrefUtils.getInstance(this).getUser().getToken(),
+                loadingCount,
+                loadingOffset
+        ).enqueue(new Callback<List<Chat>>() {
+            private void onEnd() {
+                if (addLoadingItem)
+                    adapter.removeRefreshItem(loadingItemPosition);
+
+                adapter.setLoaded();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onResponse(Call<List<Chat>> call, Response<List<Chat>> response) {
-                if (response.body() != null) {
-                    for (Chat chat : response.body()) {
-                        adapter.addItem(chat);
-                    }
-
-                    adapter.notifyDataSetChanged();
-                    onComplete();
+                if (response == null || response.body() == null) {
+                    return;
                 }
+
+                if (response.body().size() == 0) {
+                    isEndReached = true;
+                }
+
+                for (Chat chat : response.body()) {
+                    adapter.addItem(chat);
+                }
+
+                adapter.notifyDataSetChanged();
+                onEnd();
+                incrementLoadingOffset();
             }
 
             @Override
@@ -174,9 +189,17 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 Log.e(TAG, "Error occurred during my chat list fetching", t);
 
                 Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                onComplete();
+                onEnd();
             }
         });
+    }
+
+    private void incrementLoadingOffset() {
+        loadingOffset += loadingCount;
+    }
+
+    private void dropLoadingOffset() {
+        loadingOffset = 0;
     }
 
     private void setupSwipeRefresh() {
@@ -188,15 +211,31 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 if (chatSet != null) {
                     chatSet.clear();
                 }
-                loadData();
+                dropLoadingOffset();
+                loadData(false);
             }
         });
     }
 
     private void setupRecyclerView() {
         chatSet = new ArrayList<>();
+        layoutManager = new LinearLayoutManager(this);
 
-        adapter = new ChatListAdapter(this, chatSet);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        adapter = new ChatListAdapter(this, recyclerView, chatSet);
+        recyclerView.setAdapter(adapter);
+
+        adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (!isEndReached)
+                    loadData(true);
+            }
+        });
+
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -214,13 +253,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
             }
         });
-
-        layoutManager = new LinearLayoutManager(this);
-
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
     }
 
     private void updateGCMId() {

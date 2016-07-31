@@ -88,20 +88,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
-        //public MaterialProgressBar progressBar;
-
-        public ProgressViewHolder(View itemView) {
-            super(itemView);
-            //this.progressBar = (MaterialProgressBar) itemView.findViewById(R.id.progressBar);
-        }
-    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-
-        Log.d(TAG, "onCreateViewHolder()-> viewType: " + viewType);
 
         if (viewType == Message.TYPE_MY) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_message_my, parent, false);
