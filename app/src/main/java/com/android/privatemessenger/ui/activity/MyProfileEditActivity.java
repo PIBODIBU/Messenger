@@ -1,5 +1,6 @@
 package com.android.privatemessenger.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -125,6 +126,9 @@ public class MyProfileEditActivity extends AppCompatActivity {
             return;
         }
 
+        final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(this);
+        progressDialog.show();
+
         RetrofitAPI.getInstance().updateMyInfo(
                 SharedPrefUtils.getInstance(this).getUser().getToken(),
                 ETName.getText().toString(),
@@ -137,6 +141,7 @@ public class MyProfileEditActivity extends AppCompatActivity {
                     return;
                 }
 
+                progressDialog.cancel();
                 setResult(RESULT_OK, new Intent()
                         .putExtra(IntentKeys.OBJECT_USER, response.body()));
                 finish();
@@ -144,6 +149,7 @@ public class MyProfileEditActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                progressDialog.cancel();
                 Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onFailure()-> ", t);
             }

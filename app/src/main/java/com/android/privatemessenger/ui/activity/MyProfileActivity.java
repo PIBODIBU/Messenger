@@ -12,9 +12,11 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.modules.ActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
 import com.r0adkll.slidr.Slidr;
@@ -56,6 +58,47 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
         removeToolbarTitle();
         initLayout();
         updateUI();
+    }
+
+    @OnClick(R.id.fab_test)
+    public void openBottomSheet() {
+        ActionDialog actionDialog = new ActionDialog.Builder(getSupportFragmentManager(), this)
+                .addItem(new ActionDialog.SimpleActionItem("Item 1", new ActionDialog.OnItemClickListener() {
+                    @Override
+                    public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, "Long click on " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+                }))
+                .addItem(new ActionDialog.SimpleActionItem("Item 2", new ActionDialog.OnItemClickListener() {
+                    @Override
+                    public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, "Long click on " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+                }))
+                .addItem(new ActionDialog.SimpleActionItem("Item 3", new ActionDialog.OnItemClickListener() {
+                    @Override
+                    public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                        Toast.makeText(MyProfileActivity.this, "Long click on " + clickedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+                }))
+                .build();
+
+        actionDialog.show();
     }
 
     @Override
