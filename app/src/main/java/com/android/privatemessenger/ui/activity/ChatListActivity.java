@@ -20,6 +20,8 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.realm.RealmDB;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
@@ -34,6 +36,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,8 +56,10 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
     private ChatListAdapter adapter;
     private ArrayList<Chat> chatSet;
+    private ArrayList<UnreadMessage> unreadMessages;
     private LinearLayoutManager layoutManager;
 
+    private Realm realm;
     private BroadcastReceiver messageReceiver;
 
     private int loadingOffset = 0;
@@ -66,11 +74,36 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         ButterKnife.bind(this);
         getDrawer();
 
+        setupRealm();
+        getUnreadCount();
         setupRecyclerView();
         setupSwipeRefresh();
         loadData(true);
         setupReceivers();
         updateGCMId();
+    }
+
+    private void getUnreadCount() {
+        unreadMessages = new ArrayList<>();
+        RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).findAll();
+        unreadMessages.addAll(realmResults);
+
+        realmResults.addChangeListener(new RealmChangeListener<RealmResults<UnreadMessage>>() {
+            @Override
+            public void onChange(RealmResults<UnreadMessage> element) {
+                unreadMessages.clear();
+                unreadMessages.addAll(element);
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void setupRealm() {
+        realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
+                .name(Realm.DEFAULT_REALM_NAME)
+                .schemaVersion(0)
+                .deleteRealmIfMigrationNeeded()
+                .build());
     }
 
     @Override
@@ -227,6 +260,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         adapter = new ChatListAdapter(this, recyclerView, chatSet);
+        adapter.setUnreadMessages(unreadMessages);
         recyclerView.setAdapter(adapter);
 
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {

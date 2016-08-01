@@ -14,6 +14,8 @@ import com.android.privatemessenger.R;
 import com.android.privatemessenger.application.ActivityWatcher;
 import com.android.privatemessenger.broadcast.BroadcastKeys;
 import com.android.privatemessenger.broadcast.IntentFilters;
+import com.android.privatemessenger.data.realm.RealmDB;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.ui.activity.ChatListActivity;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -23,6 +25,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Map;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -53,9 +58,30 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (!ActivityWatcher.isChatActivityShowing() && ActivityWatcher.getCurrentChatId() != jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID)) {
                 sendNotification(jsonSender.getString(BroadcastKeys.SENDER_NAME), jsonMessage.getString(BroadcastKeys.MESSAGE));
             }
+
+            addUnreadToDB(jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onMessageReceived()-> ", e);
+        } catch (Exception ex) {
+            Log.e(TAG, "onMessageReceived()-> ", ex);
         }
+    }
+
+    private void addUnreadToDB(int chatId) {
+        Realm realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
+                .name(Realm.DEFAULT_REALM_NAME)
+                .schemaVersion(0)
+                .deleteRealmIfMigrationNeeded()
+                .build());
+
+        UnreadMessage oldModel = realm.where(UnreadMessage.class).equalTo("chatId", chatId).findFirst();
+        int unreadCount = oldModel == null ? 1 : oldModel.getUnreadCount() + 1;
+        Log.d(TAG, "addUnreadToDB()-> unreadCount: " + unreadCount);
+
+        UnreadMessage unreadMessage = new UnreadMessage(chatId, unreadCount);
+        realm.beginTransaction();
+        realm.insertOrUpdate(unreadMessage);
+        realm.commitTransaction();
     }
 
     //This method is only generating push notification

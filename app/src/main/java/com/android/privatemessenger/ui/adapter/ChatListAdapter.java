@@ -17,11 +17,13 @@ import android.widget.TextView;
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Message;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.RealmResults;
 
 public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -29,6 +31,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Context context;
     private ArrayList<Chat> dataSet;
+    private ArrayList<UnreadMessage> unreadMessages;
     private RecyclerItemClickListener recyclerItemClickListener;
 
     // The minimum amount of items to have below your current scroll position before loading more.
@@ -90,6 +93,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @BindView(R.id.tv_date)
         public TextView TVDate;
 
+        @BindView(R.id.counter)
+        public TextView TVCounter;
+
         public BaseViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -132,6 +138,25 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             } else {
                 baseViewHolder.TVName.setText(chat.getName());
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_group_primary_24dp);
+            }
+
+            int unreadCount = 0;
+            for (UnreadMessage unreadMessage : unreadMessages) {
+                Log.d(TAG, "onBindViewHolder()-> loop: chatId: " + unreadMessage.getChatId());
+                if (unreadMessage.getChatId() == chat.getId()) {
+                    unreadCount = unreadMessage.getUnreadCount();
+                    break;
+                }
+            }
+
+            Log.d(TAG, "onBindViewHolder()-> unreadMessages set size: " + unreadMessages.size());
+            Log.d(TAG, "onBindViewHolder()-> unreadCount: " + unreadCount);
+
+            if (unreadCount == 0) {
+                baseViewHolder.TVCounter.setVisibility(View.GONE);
+            } else {
+                baseViewHolder.TVCounter.setVisibility(View.VISIBLE);
+                baseViewHolder.TVCounter.setText(String.valueOf(unreadCount));
             }
 
             baseViewHolder.TVLastMessage.setText(chat.getLastMessage() == null ? "" : chat.getLastMessage().getMessage());
@@ -179,6 +204,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyItemRemoved(position);
     }
 
+    public ArrayList<UnreadMessage> getUnreadMessages() {
+        return unreadMessages;
+    }
+
+    public void setUnreadMessages(ArrayList<UnreadMessage> unreadMessages) {
+        this.unreadMessages = unreadMessages;
+    }
 
     @Override
     public int getItemCount() {

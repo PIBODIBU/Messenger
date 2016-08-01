@@ -269,7 +269,10 @@ public class ContactListActivity extends BaseNavDrawerActivity {
                         .addItem(new ActionDialog.SimpleActionItem("Начать беседу", new ActionDialog.OnItemClickListener() {
                             @Override
                             public void onClick(ActionDialog.SimpleActionItem clickedItem) {
-                                HashMap<String, Object> data = new HashMap<String, Object>();
+                                final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(ContactListActivity.this);
+                                progressDialog.show();
+
+                                HashMap<String, Object> data = new HashMap<>();
                                 List<UserId> userIds = new ArrayList<>();
 
                                 userIds.add(new UserId(user.getId()));
@@ -286,12 +289,15 @@ public class ContactListActivity extends BaseNavDrawerActivity {
                                         } else {
                                             Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
                                         }
+
+                                        progressDialog.dismiss();
                                     }
 
                                     @Override
                                     public void onFailure(Call<Chat> call, Throwable t) {
                                         Log.e(TAG, "onFailure()-> ", t);
                                         Toast.makeText(ContactListActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                        progressDialog.dismiss();
                                     }
                                 });
                             }

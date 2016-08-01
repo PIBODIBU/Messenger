@@ -34,6 +34,8 @@ public class Chat implements Serializable {
     @SerializedName("participants")
     private List<User> participants;
 
+    private int unreadCount;
+
     public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants) {
         this.name = name;
         this.createdAt = createdAt;
@@ -103,5 +105,13 @@ public class Chat implements Serializable {
 
     public void setLastMessage(Message lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(int unreadCount) {
+        this.unreadCount = unreadCount;
     }
 }

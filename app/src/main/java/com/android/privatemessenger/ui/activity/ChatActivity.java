@@ -11,6 +11,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
@@ -37,6 +40,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,6 +61,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
     private ArrayList<Message> messageSet;
     private LinearLayoutManager linearLayoutManager;
 
+    private Realm realm;
     private Chat chat;
 
     private BroadcastReceiver messageReceiver;
@@ -78,9 +85,29 @@ public class ChatActivity extends BaseNavDrawerActivity {
             getSupportActionBar().setTitle(chat.getParticipantsCount() == 2 ? chat.getParticipants().get(0).getName() : chat.getName());
         }
 
+        setupRealm();
+        deleteUnreadCounter();
         setupRecyclerView();
         setupReceivers();
         loadData(true, true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_chat, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete_chat:
+                Toast.makeText(this, "Deleting", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -94,6 +121,24 @@ public class ChatActivity extends BaseNavDrawerActivity {
     protected void onPause() {
         ActivityWatcher.setChatActivityShowing(false);
         super.onPause();
+    }
+
+    private void setupRealm() {
+        realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
+                .name(Realm.DEFAULT_REALM_NAME)
+                .schemaVersion(0)
+                .deleteRealmIfMigrationNeeded()
+                .build());
+    }
+
+    private void deleteUnreadCounter() {
+        final RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).equalTo("chatId", chat.getId()).findAll();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realmResults.deleteAllFromRealm();
+            }
+        });
     }
 
     public void sendMessage(final Message message) {
