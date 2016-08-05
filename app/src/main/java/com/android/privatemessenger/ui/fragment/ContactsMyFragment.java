@@ -235,7 +235,7 @@ public class ContactsMyFragment extends Fragment {
                                                     }
                                                 });
                                     }
-                                });
+                                }).show();
                             }
 
                             @Override
