@@ -43,6 +43,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             JSONObject jsonMessage = new JSONObject(remoteMessage.getData().get(BroadcastKeys.JSON_OBJECT_MESSAGE));
             JSONObject jsonSender = jsonMessage.getJSONObject(BroadcastKeys.JSON_OBJECT_SENDER);
 
+            //addUnreadToDB(jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID));
+
             sendBroadcast(new Intent(IntentFilters.NEW_MESSAGE)
                     .putExtra(IntentKeys.MESSAGE_ID, jsonMessage.getInt(BroadcastKeys.MESSAGE_ID))
                     .putExtra(IntentKeys.MESSAGE, jsonMessage.getString(BroadcastKeys.MESSAGE))
@@ -58,8 +60,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (!ActivityWatcher.isChatActivityShowing() && ActivityWatcher.getCurrentChatId() != jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID)) {
                 sendNotification(jsonSender.getString(BroadcastKeys.SENDER_NAME), jsonMessage.getString(BroadcastKeys.MESSAGE));
             }
-
-            addUnreadToDB(jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID));
         } catch (JSONException e) {
             Log.e(TAG, "onMessageReceived()-> ", e);
         } catch (Exception ex) {

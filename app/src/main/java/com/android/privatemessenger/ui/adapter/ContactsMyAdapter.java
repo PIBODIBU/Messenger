@@ -1,33 +1,29 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
-import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.model.Contact;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.BaseViewHolder> {
-    private final String TAG = ContactListAdapter.this.getClass().getSimpleName();
+public class ContactsMyAdapter extends RecyclerView.Adapter<ContactsMyAdapter.BaseViewHolder> {
+    private final String TAG = ContactsMyAdapter.this.getClass().getSimpleName();
 
     private Context context;
-    private ArrayList<User> dataSet;
+    private ArrayList<Contact> dataSet;
     private RecyclerItemClickListener recyclerItemClickListener;
 
-    private boolean selectionModeActivated = false;
-
-    public ContactListAdapter(Context context, ArrayList<User> dataSet) {
+    public ContactsMyAdapter(Context context, ArrayList<Contact> dataSet) {
         this.context = context;
         this.dataSet = dataSet;
     }
@@ -45,9 +41,6 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         @BindView(R.id.tv_contact_image)
         public TextView TVContactImageText;
 
-        @BindView(R.id.cb_select)
-        public AppCompatCheckBox APCBSelect;
-
         public BaseViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -55,40 +48,26 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ContactsMyAdapter.BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_contact, parent, false);
-        return new BaseViewHolder(view);
+        return new ContactsMyAdapter.BaseViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final BaseViewHolder holder, final int position) {
+    public void onBindViewHolder(final ContactsMyAdapter.BaseViewHolder holder, final int position) {
         if (dataSet == null) {
             return;
         }
 
-        final User user = dataSet.get(position);
+        final Contact contact = dataSet.get(position);
 
-        if (user == null) {
+        if (contact == null) {
             return;
         }
 
-        if (isSelectionModeActivated()) {
-            holder.APCBSelect.setVisibility(View.VISIBLE);
-        } else {
-            holder.APCBSelect.setVisibility(View.INVISIBLE);
-        }
-
-        holder.TVName.setText(user.getName());
-        holder.TVPhone.setText(user.getPhone());
-        holder.APCBSelect.setChecked(user.isSelected());
-        holder.TVContactImageText.setText(String.valueOf(user.getName().charAt(0)).toUpperCase());
-
-        holder.APCBSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                user.setSelected(isChecked);
-            }
-        });
+        holder.TVName.setText(contact.getName());
+        holder.TVPhone.setText(contact.getPhone());
+        holder.TVContactImageText.setText(String.valueOf(contact.getName().charAt(0)).toUpperCase());
 
         holder.RLRootView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,21 +94,13 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         return dataSet.size();
     }
 
-    public void addItem(User user) {
-        dataSet.add(user);
+    public void addItem(Contact contact) {
+        dataSet.add(contact);
+        notifyItemInserted(dataSet.indexOf(contact));
     }
 
-    public ArrayList<User> getDataSet() {
+    public ArrayList<Contact> getDataSet() {
         return dataSet;
-    }
-
-    public boolean isSelectionModeActivated() {
-        return selectionModeActivated;
-    }
-
-    public void setSelectionModeActivated(boolean selectionModeActivated) {
-        this.selectionModeActivated = selectionModeActivated;
-        notifyDataSetChanged();
     }
 
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {

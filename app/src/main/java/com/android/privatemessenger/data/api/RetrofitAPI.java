@@ -6,7 +6,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitAPI {
-    private static final String BASE_URL = "http://138.201.140.146/~teamtest/private_messenger/v1/";
+    //    private static final String BASE_URL = "http://138.201.140.146/~teamtest/private_messenger/v1/";
+    private static final String BASE_URL = "http://nauguide.esy.es/bogdan/v1/";
     private static IAPIService api = null;
 
     public static IAPIService getInstance() {

@@ -28,6 +28,7 @@ import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
+import com.android.privatemessenger.utils.ResultCodes;
 import com.android.privatemessenger.utils.Values;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -74,16 +75,18 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         ButterKnife.bind(this);
         getDrawer();
 
-        setupRealm();
-        getUnreadCount();
+        /*setupRealm();
+        getUnreadCount();*/
         setupRecyclerView();
         setupSwipeRefresh();
-        loadData(true);
+        loadData();
         setupReceivers();
         updateGCMId();
     }
 
     private void getUnreadCount() {
+       /* Log.d(TAG, "getUnreadCount()-> called");
+
         unreadMessages = new ArrayList<>();
         RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).findAll();
         unreadMessages.addAll(realmResults);
@@ -91,11 +94,13 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         realmResults.addChangeListener(new RealmChangeListener<RealmResults<UnreadMessage>>() {
             @Override
             public void onChange(RealmResults<UnreadMessage> element) {
-                unreadMessages.clear();
-                unreadMessages.addAll(element);
+                Log.d(TAG, "onChange()-> called");
+
+                adapter.getUnreadMessages().clear();
+                adapter.getUnreadMessages().addAll(element);
                 adapter.notifyDataSetChanged();
             }
-        });
+        });*/
     }
 
     private void setupRealm() {
@@ -111,18 +116,24 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RequestCodes.ACTIVITY_CHAT) {
-            if (data == null) {
-                return;
+            if (resultCode == ResultCodes.RESULT_CHAT_DELETED) {
+                loadData();
+            } else {
+                getUnreadCount();
+
+                if (data == null) {
+                    return;
+                }
+
+                int chatRoomId = data.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1);
+                Message lastMessage = (Message) data.getSerializableExtra(IntentKeys.MESSAGE);
+
+                if (chatRoomId == -1 || lastMessage == null) {
+                    return;
+                }
+
+                updateLastMessage(chatRoomId, lastMessage);
             }
-
-            int chatRoomId = data.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1);
-            Message lastMessage = (Message) data.getSerializableExtra(IntentKeys.MESSAGE);
-
-            if (chatRoomId == -1 || lastMessage == null) {
-                return;
-            }
-
-            updateLastMessage(chatRoomId, lastMessage);
         }
     }
 
@@ -180,21 +191,21 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
     }
 
-    private void loadData(final boolean addLoadingItem) {
-        final int loadingItemPosition = addLoadingItem ? adapter.addRefreshItem() : -1;
+    private void loadData() {
+        if (chatSet != null) {
+            chatSet.clear();
+        }
 
-        Log.d(TAG, "loadData()-> Refreshing: " + swipeRefreshLayout.isRefreshing());
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
 
         RetrofitAPI.getInstance().getMyChats(
-                SharedPrefUtils.getInstance(this).getUser().getToken(),
-                loadingCount,
-                loadingOffset
-        ).enqueue(new Callback<List<Chat>>() {
+                SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<Chat>>() {
             private void onEnd() {
-                if (addLoadingItem)
-                    adapter.removeRefreshItem(loadingItemPosition);
-
-                adapter.setLoaded();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -214,7 +225,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
                 adapter.notifyDataSetChanged();
                 onEnd();
-                incrementLoadingOffset();
             }
 
             @Override
@@ -227,14 +237,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         });
     }
 
-    private void incrementLoadingOffset() {
-        loadingOffset += loadingCount;
-    }
-
-    private void dropLoadingOffset() {
-        loadingOffset = 0;
-    }
-
     private void setupSwipeRefresh() {
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -244,9 +246,8 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 if (chatSet != null) {
                     chatSet.clear();
                 }
-                isEndReached = false;
-                dropLoadingOffset();
-                loadData(false);
+                loadData();
+                getUnreadCount();
             }
         });
     }
@@ -262,14 +263,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         adapter = new ChatListAdapter(this, recyclerView, chatSet);
         adapter.setUnreadMessages(unreadMessages);
         recyclerView.setAdapter(adapter);
-
-        adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                if (!isEndReached)
-                    loadData(true);
-            }
-        });
 
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override

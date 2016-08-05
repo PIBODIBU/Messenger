@@ -21,6 +21,7 @@ import com.android.privatemessenger.application.ActivityWatcher;
 import com.android.privatemessenger.broadcast.IntentFilters;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
+import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
@@ -31,7 +32,10 @@ import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
+import com.android.privatemessenger.ui.dialog.ParticipantsListDialog;
+import com.android.privatemessenger.ui.dialog.ProgressDialog;
 import com.android.privatemessenger.utils.IntentKeys;
+import com.android.privatemessenger.utils.ResultCodes;
 import com.android.privatemessenger.utils.Values;
 
 import java.util.ArrayList;
@@ -103,7 +107,64 @@ public class ChatActivity extends BaseNavDrawerActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete_chat:
-                Toast.makeText(this, "Deleting", Toast.LENGTH_SHORT).show();
+                final android.app.ProgressDialog dialog = ProgressDialog.create(this);
+                dialog.show();
+
+                RetrofitAPI.getInstance().deleteChat(
+                        chat.getId(),
+                        SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<ErrorResponse>() {
+                    private void onEnd() {
+                        dialog.dismiss();
+                    }
+
+                    private void onError() {
+                        Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                        if (response == null || response.body() == null || response.body().isError()) {
+                            onError();
+                            return;
+                        }
+
+                        setResult(ResultCodes.RESULT_CHAT_DELETED);
+                        finish();
+
+                        onEnd();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                        onEnd();
+                        onError();
+                    }
+                });
+                return true;
+            case R.id.action_participants:
+                RetrofitAPI.getInstance().getChatParticipants(chat.getId()).enqueue(new Callback<List<User>>() {
+                    @Override
+                    public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                        if (response == null || response.body() == null) {
+                            Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        ParticipantsListDialog.Builder builder = new ParticipantsListDialog.Builder(
+                                getSupportFragmentManager(), ChatActivity.this);
+
+                        for (User user : response.body()) {
+                            builder.addParticipant(user);
+                        }
+
+                        builder.build().show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<User>> call, Throwable t) {
+                        Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -132,13 +193,13 @@ public class ChatActivity extends BaseNavDrawerActivity {
     }
 
     private void deleteUnreadCounter() {
-        final RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).equalTo("chatId", chat.getId()).findAll();
+        /*final RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).equalTo("chatId", chat.getId()).findAll();
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 realmResults.deleteAllFromRealm();
             }
-        });
+        });*/
     }
 
     public void sendMessage(final Message message) {

@@ -47,34 +47,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public ChatListAdapter(Context context, RecyclerView recyclerView, ArrayList<Chat> dataSet) {
         this.context = context;
         this.dataSet = dataSet;
-
-        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                totalItemCount = linearLayoutManager.getItemCount();
-                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-
-                Log.d(TAG, "onScrolled()-> " +
-                        "\ntotalItemCount: " + totalItemCount +
-                        "\nlastVisibleItem: " + lastVisibleItem +
-                        "\nloading: " + loading);
-
-                if (!loading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
-                    loading = true;
-
-                    // End has been reached
-                    Log.d(TAG, "onScrolled()-> End reached");
-
-                    if (onLoadMoreListener != null) {
-                        onLoadMoreListener.onLoadMore();
-                    }
-                }
-            }
-        });
     }
 
     public class BaseViewHolder extends RecyclerView.ViewHolder {
@@ -104,15 +76,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
-
-        if (viewType == TYPE_LOADING) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_progress_item, parent, false);
-            return new ProgressViewHolder(view);
-        } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_chat, parent, false);
-            return new BaseViewHolder(view);
-        }
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_chat, parent, false);
+        return new BaseViewHolder(view);
     }
 
     @Override
@@ -141,16 +106,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             int unreadCount = 0;
-            for (UnreadMessage unreadMessage : unreadMessages) {
+            /*for (UnreadMessage unreadMessage : unreadMessages) {
+                if (unreadMessage == null) {
+                    continue;
+                }
+
                 Log.d(TAG, "onBindViewHolder()-> loop: chatId: " + unreadMessage.getChatId());
+
                 if (unreadMessage.getChatId() == chat.getId()) {
                     unreadCount = unreadMessage.getUnreadCount();
                     break;
                 }
-            }
-
-            Log.d(TAG, "onBindViewHolder()-> unreadMessages set size: " + unreadMessages.size());
-            Log.d(TAG, "onBindViewHolder()-> unreadCount: " + unreadCount);
+            }*/
 
             if (unreadCount == 0) {
                 baseViewHolder.TVCounter.setVisibility(View.GONE);
@@ -200,7 +167,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void removeRefreshItem(int position) {
-        dataSet.remove(position);
+        try {
+            dataSet.remove(position);
+        } catch (Exception ex) {
+            Log.e(TAG, "removeRefreshItem()-> ", ex);
+        }
         notifyItemRemoved(position);
     }
 

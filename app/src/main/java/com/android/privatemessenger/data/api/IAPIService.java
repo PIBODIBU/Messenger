@@ -2,6 +2,7 @@ package com.android.privatemessenger.data.api;
 
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ChatCreateResponse;
+import com.android.privatemessenger.data.model.Contact;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.LoginResponse;
 import com.android.privatemessenger.data.model.Message;
@@ -38,16 +39,18 @@ public interface IAPIService {
     Call<ErrorResponse> updateFCMId(@Field("token") String token, @Field("gcm") String id);
 
     @GET("my/chats")
-    Call<List<Chat>> getMyChats(@Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
+    Call<List<Chat>> getMyChats(@Query("token") String token);
 
     @GET("chat/{id}/messages")
-    Call<List<Message>> getChatMessages(@Path("id") int chatId, @Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
+    Call<List<Message>> getChatMessages(@Path("id") int chatId,
+                                        @Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
 
     @GET("contacts")
-    Call<List<User>> getContacts(@Query("token") String token);
+    Call<List<User>> getRegisteredUsers(@Query("token") String token);
 
     @GET("chat/{id}/on_message")
-    Call<SendMessageResponse> sendMessage(@Path("id") int chatId, @Query("token") String token, @Query("message") String message);
+    Call<SendMessageResponse> sendMessage(@Path("id") int chatId,
+                                          @Query("token") String token, @Query("message") String message);
 
     @POST("chat/create")
     Call<Chat> createChat(@Body HashMap<String, Object> data);
@@ -56,6 +59,26 @@ public interface IAPIService {
     @POST("my/profile/update")
     Call<User> updateMyInfo(@Field("token") String token, @Field("name") String name, @Field("email") String email);
 
-    @GET("chat/{id}/delete")
-    Call<ErrorResponse> deleteChat(@Path("id") int chatId, @Query("token") String token);
+    @FormUrlEncoded
+    @POST("chat/{id}/delete")
+    Call<ErrorResponse> deleteChat(@Path("id") int chatId,
+                                   @Field("token") String token);
+
+    @GET("chat/{id}/users")
+    Call<List<User>> getChatParticipants(@Path("id") int chatId);
+
+    @GET("my/contacts")
+    Call<List<Contact>> getMyContacts(@Query("token") String token);
+
+    @FormUrlEncoded
+    @POST("my/contacts/add")
+    Call<ErrorResponse> addContact(@Field("token") String token, @Field("phone") String phone, @Field("name") String name);
+
+    @FormUrlEncoded
+    @POST("my/contacts/{id}/add")
+    Call<ErrorResponse> updateContact(@Path("id") int contactId,
+                                      @Field("token") String token, @Field("phone") String phone, @Field("name") String name);
+
+    @GET
+    Call<ErrorResponse> deleteContact(@Field("token") String token, @Field("contact_id") int contactId);
 }

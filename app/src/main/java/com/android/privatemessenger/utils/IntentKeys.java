@@ -6,6 +6,7 @@ public class IntentKeys {
 
     public static final String ARRAY_LIST_CHAT = "com.android.privatemessenger.array_list_chat";
     public static final String ARRAY_LIST_MESSAGE = "com.android.privatemessenger.array_list_message";
+    public static final String ARRAY_LIST_USER = "com.android.privatemessenger.array_list_user";
     public static final String ARRAY_LIST_CONTACT = "com.android.privatemessenger.array_list_contact";
 
     public static final String MESSAGE_ID = "com.android.privatemessenger.message_id";
