@@ -80,5 +80,5 @@ public interface IAPIService {
                                       @Field("token") String token, @Field("name") String name, @Field("phone") String phone);
 
     @GET("my/contacts/{id}/delete")
-    Call<ErrorResponse> deleteContact(@Path("id")int chatId, @Field("token") String token);
+    Call<ErrorResponse> deleteContact(@Path("id")int chatId, @Query("token") String token);
 }

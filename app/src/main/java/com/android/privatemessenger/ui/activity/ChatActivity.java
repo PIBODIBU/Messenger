@@ -72,6 +72,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
     private int loadingOffset = 0;
     private int loadingCount = Values.MESSAGE_LOADING_COUNT;
+    private boolean isEndReached = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,10 +301,15 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 }
 
                 adapter.notifyDataSetChanged();
+                
                 if (scrollToEnd)
                     recyclerView.scrollToPosition(0);
+
                 onEnd();
                 incrementLoadingOffset();
+
+                if (response.body().size() == 0)
+                    isEndReached = true;
             }
 
             @Override
@@ -380,7 +386,8 @@ public class ChatActivity extends BaseNavDrawerActivity {
         adapter.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                loadData(true, false);
+                if (!isEndReached)
+                    loadData(true, false);
             }
         });
     }
