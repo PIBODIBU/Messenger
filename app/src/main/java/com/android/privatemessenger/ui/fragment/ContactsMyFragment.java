@@ -1,8 +1,10 @@
 package com.android.privatemessenger.ui.fragment;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,15 +28,20 @@ import com.android.privatemessenger.data.api.IAPIService;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Contact;
+import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
+import com.android.privatemessenger.ui.activity.ContactAddActivity;
+import com.android.privatemessenger.ui.activity.ContactUpdateActivity;
 import com.android.privatemessenger.ui.activity.UserPageActivity;
 import com.android.privatemessenger.ui.adapter.ContactsAllAdapter;
 import com.android.privatemessenger.ui.adapter.ContactsMyAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.ActionDialog;
+import com.android.privatemessenger.ui.dialog.DeleteDialog;
 import com.android.privatemessenger.utils.IntentKeys;
+import com.android.privatemessenger.utils.RequestCodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,11 +100,34 @@ public class ContactsMyFragment extends Fragment {
     }
 
     @OnClick(R.id.fab_add_contact)
-    public void createChat() {
+    public void addContact() {
+        startActivityForResult(new Intent(getActivity(), ContactAddActivity.class), RequestCodes.ACTIVITY_CONTACTS_ADD);
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RequestCodes.ACTIVITY_CONTACTS_ADD) {
+            if (resultCode == Activity.RESULT_OK) {
+                loadData();
+                return;
+            }
+        }
+
+        if (requestCode == RequestCodes.ACTIVITY_CONTACTS_UPDATE) {
+            if (resultCode == Activity.RESULT_OK) {
+                loadData();
+                return;
+            }
+        }
     }
 
     private void loadData() {
+        if (contactSet != null) {
+            contactSet.clear();
+        }
+
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -156,11 +186,56 @@ public class ContactsMyFragment extends Fragment {
 
                 ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
                         .setCloseAfterItemSelected(true)
+
                         .addItem(new ActionDialog.SimpleActionItem("Вызов", new ActionDialog.OnItemClickListener() {
                             @Override
                             public void onClick(ActionDialog.SimpleActionItem clickedItem) {
                                 Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + contact.getPhone()));
                                 startActivity(intent);
+                            }
+
+                            @Override
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                            }
+                        }))
+                        .addItem(new ActionDialog.SimpleActionItem("Изменить", new ActionDialog.OnItemClickListener() {
+                            @Override
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                startActivityForResult(new Intent(getActivity(), ContactUpdateActivity.class)
+                                        .putExtra(IntentKeys.OBJECT_CONTACT, contact), RequestCodes.ACTIVITY_CONTACTS_UPDATE);
+                            }
+
+                            @Override
+                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
+                            }
+                        }))
+                        .addItem(new ActionDialog.SimpleActionItem("Удалить", new ActionDialog.OnItemClickListener() {
+                            @Override
+                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
+                                DeleteDialog.create(getActivity(), new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        RetrofitAPI.getInstance().deleteContact(
+                                                contact.getId(),
+                                                SharedPrefUtils.getInstance(getActivity()).getUser().getToken())
+                                                .enqueue(new Callback<ErrorResponse>() {
+                                                    @Override
+                                                    public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                                                        if (response == null || response.body() == null || response.body().isError()) {
+                                                            Toast.makeText(getActivity(), getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                                                            return;
+                                                        }
+
+                                                        loadData();
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                                                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                });
                             }
 
                             @Override

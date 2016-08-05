@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -35,9 +33,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MyProfileEditActivity extends AppCompatActivity {
+public class MyProfileUpdateActivity extends AppCompatActivity {
 
-    private final String TAG = MyProfileEditActivity.this.getClass().getSimpleName();
+    private final String TAG = MyProfileUpdateActivity.this.getClass().getSimpleName();
 
     @BindView(R.id.collapsing_toolbar)
     public CollapsingToolbarLayout collapsingToolbar;
@@ -110,10 +108,10 @@ public class MyProfileEditActivity extends AppCompatActivity {
             @Override
             public void onShow(DialogInterface dialog) {
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setTextColor(ContextCompat.getColor(MyProfileEditActivity.this, R.color.colorPrimary));
+                        .setTextColor(ContextCompat.getColor(MyProfileUpdateActivity.this, R.color.colorPrimary));
 
                 alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                        .setTextColor(ContextCompat.getColor(MyProfileEditActivity.this, R.color.md_red_500));
+                        .setTextColor(ContextCompat.getColor(MyProfileUpdateActivity.this, R.color.md_red_500));
             }
         });
 
@@ -137,7 +135,7 @@ public class MyProfileEditActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response == null || response.body() == null) {
-                    Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyProfileUpdateActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -150,7 +148,7 @@ public class MyProfileEditActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<User> call, Throwable t) {
                 progressDialog.cancel();
-                Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyProfileUpdateActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onFailure()-> ", t);
             }
         });

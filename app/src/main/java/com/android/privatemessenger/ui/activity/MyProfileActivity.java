@@ -96,7 +96,7 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
 
     @OnClick(R.id.fab_edit)
     public void editMyProfile() {
-        startActivityForResult(new Intent(MyProfileActivity.this, MyProfileEditActivity.class)
+        startActivityForResult(new Intent(MyProfileActivity.this, MyProfileUpdateActivity.class)
                 .putExtra(IntentKeys.OBJECT_USER, user), RequestCodes.ACTIVITY_MY_PROFILE_EDIT);
     }
 

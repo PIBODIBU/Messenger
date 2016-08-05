@@ -72,13 +72,13 @@ public interface IAPIService {
 
     @FormUrlEncoded
     @POST("my/contacts/add")
-    Call<ErrorResponse> addContact(@Field("token") String token, @Field("phone") String phone, @Field("name") String name);
+    Call<ErrorResponse> addContact(@Field("token") String token, @Field("name") String name, @Field("phone") String phone);
 
     @FormUrlEncoded
-    @POST("my/contacts/{id}/add")
+    @POST("my/contacts/{id}/update")
     Call<ErrorResponse> updateContact(@Path("id") int contactId,
-                                      @Field("token") String token, @Field("phone") String phone, @Field("name") String name);
+                                      @Field("token") String token, @Field("name") String name, @Field("phone") String phone);
 
-    @GET
-    Call<ErrorResponse> deleteContact(@Field("token") String token, @Field("contact_id") int contactId);
+    @GET("my/contacts/{id}/delete")
+    Call<ErrorResponse> deleteContact(@Path("id")int chatId, @Field("token") String token);
 }
