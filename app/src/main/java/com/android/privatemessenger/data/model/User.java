@@ -38,6 +38,15 @@ public class User implements Serializable {
         this.createDateTime = createDateTime;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            return ((User) obj).getId() == getId();
+        } else {
+            return super.equals(obj);
+        }
+    }
+
     public int getId() {
         return id;
     }

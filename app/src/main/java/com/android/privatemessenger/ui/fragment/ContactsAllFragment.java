@@ -230,90 +230,101 @@ public class ContactsAllFragment extends Fragment {
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
-                final User user = adapter.getDataSet().get(position);
-
-                ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
-                        .setCloseAfterItemSelected(true)
-                        .addItem(new ActionDialog.SimpleActionItem("Профиль", new ActionDialog.OnItemClickListener() {
-                            @Override
-                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
-                                Intent intent = new Intent(getActivity(), UserPageActivity.class)
-                                        .putExtra(IntentKeys.OBJECT_USER, user);
-                                startActivity(intent);
-                            }
-
-                            @Override
-                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
-                            }
-                        }))
-                        .addItem(new ActionDialog.SimpleActionItem("Вызов", new ActionDialog.OnItemClickListener() {
-                            @Override
-                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
-                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
-                                startActivity(intent);
-                            }
-
-                            @Override
-                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
-                            }
-                        }))
-                        .addItem(new ActionDialog.SimpleActionItem("Начать беседу", new ActionDialog.OnItemClickListener() {
-                            @Override
-                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
-                                final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
-                                progressDialog.show();
-
-                                HashMap<String, Object> data = new HashMap<>();
-                                List<UserId> userIds = new ArrayList<>();
-
-                                userIds.add(new UserId(user.getId()));
-                                userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
-
-                                data.put(IAPIService.PARAM_USER_IDS, userIds);
-                                data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
-
-                                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
-                                    @Override
-                                    public void onResponse(Call<Chat> call, Response<Chat> response) {
-                                        if (response != null & response.body() != null) {
-                                            redirectToChatRoom(response.body());
-                                        } else {
-                                            Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                try {
+                    final User user = adapter.getDataSet().get(position);
+                    ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
+                            .setCloseAfterItemSelected(true)
+                            .addItem(new ActionDialog.SimpleActionItem(
+                                    getResources().getString(R.string.dialog_action_profile),
+                                    new ActionDialog.OnItemClickListener() {
+                                        @Override
+                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
+                                            Intent intent = new Intent(getActivity(), UserPageActivity.class)
+                                                    .putExtra(IntentKeys.OBJECT_USER, user);
+                                            startActivity(intent);
                                         }
 
-                                        progressDialog.dismiss();
-                                    }
+                                        @Override
+                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
+                                        }
+                                    }))
+                            .addItem(new ActionDialog.SimpleActionItem(
+                                    getResources().getString(R.string.dialog_action_call),
+                                    new ActionDialog.OnItemClickListener() {
+                                        @Override
+                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
+                                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
+                                            startActivity(intent);
+                                        }
 
-                                    @Override
-                                    public void onFailure(Call<Chat> call, Throwable t) {
-                                        Log.e(TAG, "onFailure()-> ", t);
-                                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                                        progressDialog.dismiss();
-                                    }
-                                });
-                            }
+                                        @Override
+                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
+                                        }
+                                    }))
+                            .addItem(new ActionDialog.SimpleActionItem(
+                                    getResources().getString(R.string.dialog_action_start_conversation),
+                                    new ActionDialog.OnItemClickListener() {
+                                        @Override
+                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
+                                            final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
+                                            progressDialog.show();
 
-                            @Override
-                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
-                            }
-                        }))
-                        .addItem(new ActionDialog.SimpleActionItem("Копировать имя", new ActionDialog.OnItemClickListener() {
-                            @Override
-                            public void onClick(ActionDialog.SimpleActionItem clickedItem) {
-                                ((ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
-                                Toast.makeText(
-                                        getActivity(),
-                                        getResources().getString(R.string.toast_copied),
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                                            HashMap<String, Object> data = new HashMap<>();
+                                            List<UserId> userIds = new ArrayList<>();
 
-                            @Override
-                            public void onLongClick(ActionDialog.SimpleActionItem clickedItem) {
-                            }
-                        }))
-                        .build();
+                                            userIds.add(new UserId(user.getId()));
+                                            userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
 
-                actionDialog.show();
+                                            data.put(IAPIService.PARAM_USER_IDS, userIds);
+                                            data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+
+                                            RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                                @Override
+                                                public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                                    if (response != null & response.body() != null) {
+                                                        redirectToChatRoom(response.body());
+                                                    } else {
+                                                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                                    }
+
+                                                    progressDialog.dismiss();
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<Chat> call, Throwable t) {
+                                                    Log.e(TAG, "onFailure()-> ", t);
+                                                    Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                                    progressDialog.dismiss();
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
+                                        }
+                                    }))
+                            .addItem(new ActionDialog.SimpleActionItem(
+                                    getResources().getString(R.string.dialog_action_copy_name),
+                                    new ActionDialog.OnItemClickListener() {
+                                        @Override
+                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
+                                            ((ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
+                                            Toast.makeText(
+                                                    getActivity(),
+                                                    getResources().getString(R.string.toast_copied),
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
+                                        }
+                                    }))
+                            .build();
+
+                    actionDialog.show();
+                } catch (Exception ex) {
+                    Log.e(TAG, "onClick()-> ", ex);
+                }
             }
 
             @Override

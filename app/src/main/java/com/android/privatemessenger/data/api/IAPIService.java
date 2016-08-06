@@ -52,7 +52,7 @@ public interface IAPIService {
     Call<SendMessageResponse> sendMessage(@Path("id") int chatId,
                                           @Query("token") String token, @Query("message") String message);
 
-    @POST("chat/create")
+    @POST("chat/createDeleteDialog")
     Call<Chat> createChat(@Body HashMap<String, Object> data);
 
     @FormUrlEncoded
@@ -80,5 +80,15 @@ public interface IAPIService {
                                       @Field("token") String token, @Field("name") String name, @Field("phone") String phone);
 
     @GET("my/contacts/{id}/delete")
-    Call<ErrorResponse> deleteContact(@Path("id")int chatId, @Query("token") String token);
+    Call<ErrorResponse> deleteContact(@Path("id") int chatId, @Query("token") String token);
+
+    @GET("chat/{id}/add_user")
+    Call<ErrorResponse> addUserToChat(@Path("id") int chatId, @Query("token") String token, @Query("user_id") int userId);
+
+    @GET("chat/{id}/delete_user")
+    Call<ErrorResponse> deleteUserFromChat(@Path("id") int chatId, @Query("token") String token, @Query("user_id") int userId);
+
+    @GET("chat/{id}/update")
+    Call<ErrorResponse> updateChatName(@Path("id") int chatId,
+                                       @Query("token") String token, @Query("user_id") int userId, @Query("chat_name") String chatName);
 }

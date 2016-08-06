@@ -4,8 +4,8 @@
     <color name="colorPrimaryDark">#D84315</color>
     <color name="colorPrimaryLight">#FF8A65</color>
     <color name="colorPrimaryLightFull">#FFCCBC</color>
-    <color name="colorAccent">#4CAF50</color>
-    <color name="colorAccentLight">#81C784</color>
+    <color name="colorAccent">#03A9F4</color>
+    <color name="colorAccentLight">#4FC3F7</color>
 
     <color name="colorTextPrimary">#dd000000</color>
     <color name="colorTextSecondary">#89000000</color>

@@ -140,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
         Digits.authenticate(new DigitsAuthConfig.Builder()
                 .withAuthCallBack(authCallback)
+                .withThemeResId(R.style.CustomDigitsTheme)
                 .withPhoneNumber(phone)
                 .build());
     }

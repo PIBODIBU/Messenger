@@ -271,7 +271,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                     Intent intent = new Intent(ChatListActivity.this, ChatActivity.class)
                             .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chatSet.get(position));
                     startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
-                } catch (IndexOutOfBoundsException ex) {
+                } catch (Exception ex) {
                     Log.e(TAG, "onClick()-> ", ex);
                 }
             }

@@ -27,6 +27,7 @@
     <string name="tv_retry">Повторить попытку</string>
     <string name="tv_delete_message">Удалить</string>
     <string name="tv_copy">Копировать</string>
+    <string name="tv_counter_part_two">выбрано</string>
 
     <string name="toast_login_fail">Ошибка авторизации</string>
     <string name="toast_loading_error">Произошла ошибка</string>
@@ -50,4 +51,13 @@
     <string name="no_info">Не указан</string>
     <string name="dialog_before_exit_message">Вы уверены, что хотите выйти?</string>
     <string name="dialog_delete_message">Вы уверены, что хотите удалить?</string>
+
+    <string name="dialog_action_delete">Выгнать</string>
+    <string name="dialog_action_copy_name">Копировать имя</string>
+    <string name="dialog_action_profile">Профиль</string>
+    <string name="dialog_action_call">Вызов</string>
+    <string name="dialog_action_start_conversation">Начать беседу</string>
+    <string name="dialog_action_change">Изменить</string>
+    <string name="tv_add_user_title">Добавить участника</string>
+    <string name="toast_added">Добавлено</string>
 </resources>
