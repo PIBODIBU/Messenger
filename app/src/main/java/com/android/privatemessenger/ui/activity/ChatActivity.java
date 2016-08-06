@@ -181,6 +181,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
 
     @Override
     protected void onPause() {
+        ActivityWatcher.dropCurrentChatId();
         ActivityWatcher.setChatActivityShowing(false);
         super.onPause();
     }
@@ -301,7 +302,7 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 }
 
                 adapter.notifyDataSetChanged();
-                
+
                 if (scrollToEnd)
                     recyclerView.scrollToPosition(0);
 

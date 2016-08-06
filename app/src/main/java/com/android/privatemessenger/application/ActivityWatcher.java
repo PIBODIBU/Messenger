@@ -22,7 +22,12 @@ public class ActivityWatcher extends MultiDexApplication {
         return currentChatId;
     }
 
+    public static void dropCurrentChatId() {
+        ActivityWatcher.currentChatId = -1;
+    }
+
     public static void setCurrentChatId(int currentChatId) {
+        Log.d(TAG, "setCurrentChatId()-> currentChatId: " + currentChatId);
         ActivityWatcher.currentChatId = currentChatId;
     }
 }
