@@ -34,6 +34,7 @@
             android:label="@string/activity_contact_list" />
         <activity
             android:name=".ui.activity.CallActivity"
+            android:label="@string/activity_call"
             android:windowSoftInputMode="stateAlwaysVisible" />
         <activity
             android:name=".ui.activity.UserPageActivity"
@@ -55,6 +56,7 @@
 
         <activity android:name=".ui.activity.ContactAddActivity" />
         <activity android:name=".ui.activity.ContactUpdateActivity" />
+        <activity android:name=".ui.activity.ChatSettingsActivity" />
     </application>
 
 </manifest>

@@ -362,6 +362,13 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finish() {
+        super.finish();
+
+        overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);
+    }
+
+    @Override
     protected void onResume() {
         getCurrentSelection();
         super.onResume();

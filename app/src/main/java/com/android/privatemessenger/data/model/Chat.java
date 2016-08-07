@@ -1,12 +1,15 @@
 package com.android.privatemessenger.data.model;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.android.privatemessenger.R;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +18,9 @@ import java.util.TimeZone;
 
 public class Chat implements Serializable {
     private final String TAG = "Chat";
+
+    public static final int TYPE_PRIVATE = 0;
+    public static final int TYPE_PUBLIC = 1;
 
     @SerializedName("chat_room_id")
     private int id;
@@ -34,14 +40,18 @@ public class Chat implements Serializable {
     @SerializedName("participants")
     private List<User> participants;
 
+    @SerializedName("type")
+    private int type;
+
     private int unreadCount;
 
-    public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants) {
+    public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants, int type) {
         this.name = name;
         this.createdAt = createdAt;
         this.lastMessage = lastMessage;
         this.participantsCount = participantsCount;
         this.participants = participants;
+        this.type = type;
     }
 
     public int getId() {
@@ -50,6 +60,10 @@ public class Chat implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCreatedAt() {
@@ -68,8 +82,12 @@ public class Chat implements Serializable {
         return participants;
     }
 
-    public String getFormattedDate() {
-        String newDate = "";
+    public int getType() {
+        return type;
+    }
+
+    public String getFormattedDate(Context context) {
+        String dayMonth = "";
         String[] rusMonths = {
                 "янв", "фев", "мар", "апр", "мая", "июн",
                 "июл", "авг", "сен", "окт", "ноя", "дек"
@@ -78,29 +96,39 @@ public class Chat implements Serializable {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        if (getCreatedAt() == null) {
-            return "";
-        }
-
         try {
-            Date oldDate = format.parse(getCreatedAt());
+            Date lastMessageDate = format.parse(getLastMessage().getCreatedAt());
 
+            // Format last message date
             format = new SimpleDateFormat("dd.MM", Locale.getDefault());
             format.setTimeZone(TimeZone.getDefault());
 
-            newDate = format.format(oldDate);
+            // Get device date
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat androidFormatter = new SimpleDateFormat("dd.MM", Locale.getDefault());
+            androidFormatter.setTimeZone(TimeZone.getDefault());
+            String androidDayMonth = androidFormatter.format(calendar.getTime());
 
-            Log.d(TAG, "getFormattedDate()-> Date: " + newDate);
+            if (androidDayMonth.equals(format.format(lastMessageDate))) {
+                return context.getResources().getString(R.string.today);
+            }
 
-            String[] splittedDate = newDate.split("\\.");
-            newDate = splittedDate[0] + " " + rusMonths[Integer.valueOf(splittedDate[1]) - 1];
+            // Format date
+            dayMonth = format.format(lastMessageDate);
+            String[] splittedDate = dayMonth.split("\\.");
+            dayMonth = splittedDate[0] + " " + rusMonths[Integer.valueOf(splittedDate[1]) - 1];
         } catch (ParseException e) {
             Log.e(TAG, "getFormattedDate()-> ParseException", e);
+            return "";
         } catch (ArrayIndexOutOfBoundsException e) {
             Log.e(TAG, "getFormattedDate()-> ArrayIndexOutOfBoundsException", e);
+            return "";
+        } catch (NullPointerException e) {
+            Log.e(TAG, "getFormattedDate()-> NullPointerException", e);
+            return "";
         }
 
-        return newDate;
+        return dayMonth;
     }
 
     public void setLastMessage(Message lastMessage) {

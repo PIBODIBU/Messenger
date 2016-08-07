@@ -3,17 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_delete_chat"
-        android:title="Удалить диалог"
+        android:id="@+id/action_profile"
+        android:title="@string/menu_profile"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_participants"
-        android:title="Участники"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_add_users"
-        android:title="Добавить"
+        android:id="@+id/action_settings"
+        android:title="@string/menu_settings"
         app:showAsAction="never" />
 </menu>

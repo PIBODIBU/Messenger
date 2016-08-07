@@ -33,7 +33,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MyProfileUpdateActivity extends AppCompatActivity {
+public class MyProfileUpdateActivity extends BaseActivity {
 
     private final String TAG = MyProfileUpdateActivity.this.getClass().getSimpleName();
 

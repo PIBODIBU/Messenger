@@ -20,11 +20,9 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.User;
-import com.android.privatemessenger.data.realm.RealmDB;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
-import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
@@ -38,9 +36,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -116,23 +112,28 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RequestCodes.ACTIVITY_CHAT) {
-            if (resultCode == ResultCodes.RESULT_CHAT_DELETED) {
-                loadData();
-            } else {
-                getUnreadCount();
+            switch (resultCode) {
+                case ResultCodes.CHAT_DELETED:
+                    loadData();
+                    break;
+                case ResultCodes.CHAT_LEAVED:
+                    loadData();
+                    break;
+                default:
+                    getUnreadCount();
 
-                if (data == null) {
-                    return;
-                }
+                    if (data == null) {
+                        return;
+                    }
 
-                int chatRoomId = data.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1);
-                Message lastMessage = (Message) data.getSerializableExtra(IntentKeys.MESSAGE);
+                    int chatRoomId = data.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1);
+                    Message lastMessage = (Message) data.getSerializableExtra(IntentKeys.MESSAGE);
 
-                if (chatRoomId == -1 || lastMessage == null) {
-                    return;
-                }
+                    if (chatRoomId == -1 || lastMessage == null) {
+                        return;
+                    }
 
-                updateLastMessage(chatRoomId, lastMessage);
+                    updateLastMessage(chatRoomId, lastMessage);
             }
         }
     }

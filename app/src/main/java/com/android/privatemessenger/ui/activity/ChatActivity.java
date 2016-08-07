@@ -4,10 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
@@ -22,7 +23,6 @@ import com.android.privatemessenger.application.ActivityWatcher;
 import com.android.privatemessenger.broadcast.IntentFilters;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Chat;
-import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
@@ -30,13 +30,10 @@ import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
-import com.android.privatemessenger.ui.dialog.ActionDialog;
-import com.android.privatemessenger.ui.dialog.AddUsersToChatDialog;
-import com.android.privatemessenger.ui.dialog.AttentionDialog;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
-import com.android.privatemessenger.ui.dialog.ProgressDialog;
 import com.android.privatemessenger.utils.IntentKeys;
+import com.android.privatemessenger.utils.RequestCodes;
 import com.android.privatemessenger.utils.ResultCodes;
 import com.android.privatemessenger.utils.Values;
 
@@ -53,8 +50,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends BaseNavDrawerActivity {
-
     private final String TAG = ChatActivity.this.getClass().getSimpleName();
+
+    @BindView(R.id.root_view)
+    public RelativeLayout rootView;
 
     @BindView(R.id.recycler_view)
     public RecyclerView recyclerView;
@@ -87,15 +86,44 @@ public class ChatActivity extends BaseNavDrawerActivity {
         ButterKnife.bind(this);
         getDrawer();
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(chat.getParticipantsCount() == 2 ? chat.getParticipants().get(0).getName() : chat.getName());
-        }
-
+        updateToolbar();
         setupRealm();
         deleteUnreadCounter();
         setupRecyclerView();
         setupReceivers();
         loadData(true, true);
+    }
+
+    private void updateToolbar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(chat.getName());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RequestCodes.ACTIVITY_CHAT_SETTINGS) {
+            switch (resultCode) {
+                case ResultCodes.CHAT_DELETED: {
+                    setResult(ResultCodes.CHAT_DELETED);
+                    finish();
+                    break;
+                }
+                case ResultCodes.CHAT_NAME_CHANGED:
+                    if (data != null && data.getSerializableExtra(IntentKeys.OBJECT_CHAT) != null) {
+                        chat = ((Chat) data.getSerializableExtra(IntentKeys.OBJECT_CHAT));
+                        updateToolbar();
+                    }
+                case ResultCodes.CHAT_LEAVED:
+                    setResult(ResultCodes.CHAT_DELETED);
+                    finish();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     @Override
@@ -104,172 +132,60 @@ public class ChatActivity extends BaseNavDrawerActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_settings).setVisible(chat.getType() == Chat.TYPE_PUBLIC);
+        menu.findItem(R.id.action_profile).setVisible(chat.getType() == Chat.TYPE_PRIVATE);
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add_users:
-                AddUsersToChatDialog dialog = new AddUsersToChatDialog();
-                dialog.setChat(chat);
-                dialog.show(getSupportFragmentManager(), "AddUsersToChatDialog");
+            case R.id.action_settings:
+                startActivityForResult(new Intent(this, ChatSettingsActivity.class)
+                        .putExtra(IntentKeys.OBJECT_CHAT, chat), RequestCodes.ACTIVITY_CHAT_SETTINGS);
                 return true;
-            case R.id.action_delete_chat:
-                AttentionDialog.createDeleteDialog(this, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        final android.app.ProgressDialog dialog = ProgressDialog.create(ChatActivity.this);
-                        dialog.show();
+            case R.id.action_profile:
 
-                        RetrofitAPI.getInstance().deleteChat(
-                                chat.getId(),
-                                SharedPrefUtils.getInstance(ChatActivity.this).getUser().getToken()).enqueue(new Callback<ErrorResponse>() {
-                            private void onEnd() {
-                                dialog.dismiss();
-                            }
-
-                            private void onError() {
-                                Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
-                                if (response == null || response.body() == null || response.body().isError()) {
-                                    onError();
-                                    return;
-                                }
-
-                                setResult(ResultCodes.RESULT_CHAT_DELETED);
-                                finish();
-
-                                onEnd();
-                            }
-
-                            @Override
-                            public void onFailure(Call<ErrorResponse> call, Throwable t) {
-                                onEnd();
-                                onError();
-                            }
-                        });
-                    }
-                }).show();
-                return true;
-            case R.id.action_participants:
                 RetrofitAPI.getInstance().getChatParticipants(chat.getId()).enqueue(new Callback<List<User>>() {
+                    private void onError() {
+                        Snackbar.make(
+                                rootView, getResources().getString(R.string.toast_loading_error), Snackbar.LENGTH_LONG).show();
+                    }
+
                     @Override
                     public void onResponse(Call<List<User>> call, Response<List<User>> response) {
                         if (response == null || response.body() == null) {
-                            Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                            onError();
+                            return;
+                        }
+                        int myId = SharedPrefUtils.getInstance(ChatActivity.this).getUser().getId();
+                        User user = null;
+
+                        for (User participant : response.body()) {
+                            if (participant.getId() != myId) {
+                                user = participant;
+                                break;
+                            }
+                        }
+
+                        if (user == null) {
+                            onError();
                             return;
                         }
 
-                       /* ParticipantsListDialog.Builder builder = new ParticipantsListDialog.Builder(
-                                getSupportFragmentManager(), ChatActivity.this);
-
-                        for (User user : response.body()) {
-                            builder.addParticipant(user);
-                        }
-
-                        builder.build().show();*/
-
-                        ActionDialog.Builder builder = new ActionDialog.Builder(getSupportFragmentManager(), ChatActivity.this);
-
-                        for (final User user : response.body()) {
-                            builder.addItem(new ActionDialog.ImagedActionItem(
-                                    user.getName(),
-                                    R.drawable.ic_person_primary_24dp,
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            ActionDialog.SimpleActionItem deleteAction = new ActionDialog.SimpleActionItem(
-                                                    getResources().getString(R.string.dialog_action_delete),
-                                                    new ActionDialog.OnItemClickListener() {
-                                                        @Override
-                                                        public void onClick(final ActionDialog.AbstractActionItem clickedItem) {
-                                                            AttentionDialog.createDeleteDialog(ChatActivity.this, new DialogInterface.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(DialogInterface dialogInterface, int i) {
-                                                                    User user = (User) ((ActionDialog.SimpleActionItem) clickedItem).getPayload();
-
-                                                                    RetrofitAPI.getInstance().deleteUserFromChat(
-                                                                            chat.getId(),
-                                                                            SharedPrefUtils.getInstance(ChatActivity.this).getUser().getToken(),
-                                                                            user.getId()
-                                                                    ).enqueue(new Callback<ErrorResponse>() {
-                                                                        @Override
-                                                                        public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
-                                                                            if (response == null || response.body() == null || response.body().isError()) {
-                                                                                Toast.makeText(
-                                                                                        ChatActivity.this,
-                                                                                        getResources().getString(R.string.toast_loading_error),
-                                                                                        Toast.LENGTH_SHORT
-                                                                                ).show();
-                                                                                return;
-                                                                            }
-                                                                        }
-
-                                                                        @Override
-                                                                        public void onFailure(Call<ErrorResponse> call, Throwable t) {
-                                                                            Toast.makeText(
-                                                                                    ChatActivity.this,
-                                                                                    getResources().getString(R.string.toast_loading_error),
-                                                                                    Toast.LENGTH_SHORT
-                                                                            ).show();
-                                                                        }
-                                                                    });
-                                                                }
-                                                            }).show();
-                                                        }
-
-                                                        @Override
-                                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-
-                                                        }
-                                                    }
-                                            );
-                                            deleteAction.setPayload(user);
-
-                                            ActionDialog.SimpleActionItem profileAction = new ActionDialog.SimpleActionItem(
-                                                    getResources().getString(R.string.dialog_action_profile),
-                                                    new ActionDialog.OnItemClickListener() {
-                                                        @Override
-                                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                                            User user = (User) ((ActionDialog.SimpleActionItem) clickedItem).getPayload();
-
-                                                            startActivity(new Intent(ChatActivity.this, UserPageActivity.class)
-                                                                    .putExtra(IntentKeys.OBJECT_USER, user));
-                                                        }
-
-                                                        @Override
-                                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-
-                                                        }
-                                                    }
-                                            );
-                                            profileAction.setPayload(user);
-
-                                            new ActionDialog.Builder(
-                                                    getSupportFragmentManager(), ChatActivity.this)
-                                                    .addItem(profileAction)
-                                                    .addItem(deleteAction)
-                                                    .build().show();
-                                        }
-
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-
-                                        }
-                                    }
-                            ));
-                        }
-
-                        builder.build().show();
+                        startActivity(new Intent(ChatActivity.this, UserPageActivity.class)
+                                .putExtra(IntentKeys.OBJECT_USER, user));
                     }
 
                     @Override
                     public void onFailure(Call<List<User>> call, Throwable t) {
-                        Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                        onError();
                     }
                 });
+
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -398,13 +314,10 @@ public class ChatActivity extends BaseNavDrawerActivity {
             public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
                 if (response == null || response.body() == null) {
                     onError();
+                    return;
                 }
 
-                assert response != null;
-                for (Message message : response.body()) {
-                    messageSet.add(message);
-                }
-
+                messageSet.addAll(response.body());
                 adapter.notifyDataSetChanged();
 
                 if (scrollToEnd)

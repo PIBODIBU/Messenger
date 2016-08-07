@@ -29,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ContactUpdateActivity extends AppCompatActivity {
+public class ContactUpdateActivity extends BaseActivity {
     private final String TAG = ContactUpdateActivity.this.getClass().getSimpleName();
 
     @BindView(R.id.collapsing_toolbar)

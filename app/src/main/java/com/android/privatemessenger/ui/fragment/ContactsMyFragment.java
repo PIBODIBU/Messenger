@@ -176,7 +176,7 @@ public class ContactsMyFragment extends Fragment {
                 final Contact contact = adapter.getDataSet().get(position);
 
                 ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
-                        .setCloseAfterItemSelected(true)
+                        .withCloseAfterItemSelected(true)
 
                         .addItem(new ActionDialog.SimpleActionItem(
                                 getResources().getString(R.string.dialog_action_call),

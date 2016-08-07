@@ -46,13 +46,13 @@ public interface IAPIService {
                                         @Query("token") String token, @Query("limit") int limit, @Query("offset") int offset);
 
     @GET("contacts")
-    Call<List<User>> getRegisteredUsers(@Query("token") String token);
+    Call<List<User>> getUsers(@Query("token") String token);
 
     @GET("chat/{id}/on_message")
     Call<SendMessageResponse> sendMessage(@Path("id") int chatId,
                                           @Query("token") String token, @Query("message") String message);
 
-    @POST("chat/createDeleteDialog")
+    @POST("chat/create")
     Call<Chat> createChat(@Body HashMap<String, Object> data);
 
     @FormUrlEncoded
@@ -90,5 +90,5 @@ public interface IAPIService {
 
     @GET("chat/{id}/update")
     Call<ErrorResponse> updateChatName(@Path("id") int chatId,
-                                       @Query("token") String token, @Query("user_id") int userId, @Query("chat_name") String chatName);
+                                       @Query("token") String token, @Query("chat_name") String chatName);
 }

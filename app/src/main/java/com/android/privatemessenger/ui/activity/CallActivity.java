@@ -43,7 +43,7 @@ public class CallActivity extends BaseNavDrawerActivity {
     }
 
     private void loadContacts() {
-        RetrofitAPI.getInstance().getRegisteredUsers(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<User>>() {
+        RetrofitAPI.getInstance().getUsers(SharedPrefUtils.getInstance(this).getUser().getToken()).enqueue(new Callback<List<User>>() {
             private void onError() {
                 Toast.makeText(CallActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
             }

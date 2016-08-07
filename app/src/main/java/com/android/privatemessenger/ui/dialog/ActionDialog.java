@@ -1,8 +1,10 @@
 package com.android.privatemessenger.ui.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -34,9 +36,10 @@ public class ActionDialog extends BottomSheetDialogFragment {
     private FragmentManager fragmentManager;
     private LinearLayoutManager layoutManager;
 
+    private View rootView = null;
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
-        View rootView = getActivity().getLayoutInflater().inflate(R.layout.bottom_sheet_dialog_action, null);
         ButterKnife.bind(this, rootView);
 
         layoutManager = new LinearLayoutManager(getActivity());
@@ -60,6 +63,14 @@ public class ActionDialog extends BottomSheetDialogFragment {
         return this;
     }
 
+    public View getRootView() {
+        return rootView;
+    }
+
+    public void setRootView(View rootView) {
+        this.rootView = rootView;
+    }
+
     public void show() {
         show(fragmentManager, TAG);
     }
@@ -67,13 +78,13 @@ public class ActionDialog extends BottomSheetDialogFragment {
     public static class Builder {
         private final String TAG = ActionDialog.class.getSimpleName() + "." + this.getClass().getSimpleName();
 
-        private Context context;
+        private Activity activity;
         private ArrayList<AbstractActionItem> dataSet;
         private ActionAdapter adapter;
         private ActionDialog dialog;
 
-        public Builder(FragmentManager fragmentManager, Context context) {
-            this.context = context;
+        public Builder(FragmentManager fragmentManager, Activity activity) {
+            this.activity = activity;
             dataSet = new ArrayList<>();
             adapter = new ActionAdapter(dataSet);
             dialog = new ActionDialog();
@@ -92,17 +103,24 @@ public class ActionDialog extends BottomSheetDialogFragment {
             return this;
         }
 
-        public Builder setCloseAfterItemSelected(boolean closeAfterItemSelected) {
+        public Builder withCloseAfterItemSelected(boolean closeAfterItemSelected) {
             adapter.setCloseAfterItemSelected(closeAfterItemSelected);
             return this;
         }
 
+        public Builder withCustomLayout(@LayoutRes int layoutId) {
+            dialog.setRootView(dialog.getActivity().getLayoutInflater().inflate(layoutId, null));
+            return this;
+        }
+
         public ActionDialog build() {
+            if (dialog.getRootView() == null) {
+                dialog.setRootView(activity.getLayoutInflater().inflate(R.layout.bottom_sheet_dialog_action, null));
+            }
             return dialog;
         }
 
         private class ActionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
             private ArrayList<AbstractActionItem> dataSet;
 
             private boolean closeAfterItemSelected = true;

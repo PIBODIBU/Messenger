@@ -1,8 +1,6 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,20 +8,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.Chat;
-import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.realm.RealmResults;
 
 public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -97,10 +92,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             BaseViewHolder baseViewHolder = (BaseViewHolder) holder;
             Chat chat = dataSet.get(position);
 
-            if (chat.getParticipantsCount() == 2) {
+            if (chat.getType() == Chat.TYPE_PRIVATE) {
                 baseViewHolder.TVName.setText(chat.getParticipants().get(0).getName());
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_person_primary_24dp);
-            } else {
+            } else if (chat.getType() == Chat.TYPE_PUBLIC) {
                 baseViewHolder.TVName.setText(chat.getName());
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_group_primary_24dp);
             }
@@ -126,8 +121,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 baseViewHolder.TVCounter.setText(String.valueOf(unreadCount));
             }
 
-            baseViewHolder.TVLastMessage.setText(chat.getLastMessage() == null ? "" : chat.getLastMessage().getMessage());
-            baseViewHolder.TVDate.setText(chat.getFormattedDate());
+            baseViewHolder.TVLastMessage.setText(
+                    chat.getLastMessage() == null || chat.getLastMessage().getMessage() == null ||
+                            chat.getLastMessage().getMessage().equals("") ?
+                            context.getResources().getString(R.string.no_messages_yet) : chat.getLastMessage().getMessage()
+            );
+            baseViewHolder.TVDate.setText(chat.getFormattedDate(context));
 
             baseViewHolder.LLRootView.setOnClickListener(new View.OnClickListener() {
                 @Override

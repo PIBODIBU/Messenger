@@ -174,7 +174,7 @@ public class ContactsAllFragment extends Fragment {
             }
         });
 
-        RetrofitAPI.getInstance().getRegisteredUsers(SharedPrefUtils.getInstance(getActivity()).getUser().getToken()).enqueue(new Callback<List<User>>() {
+        RetrofitAPI.getInstance().getUsers(SharedPrefUtils.getInstance(getActivity()).getUser().getToken()).enqueue(new Callback<List<User>>() {
             private void onComplete() {
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -233,7 +233,7 @@ public class ContactsAllFragment extends Fragment {
                 try {
                     final User user = adapter.getDataSet().get(position);
                     ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
-                            .setCloseAfterItemSelected(true)
+                            .withCloseAfterItemSelected(true)
                             .addItem(new ActionDialog.SimpleActionItem(
                                     getResources().getString(R.string.dialog_action_profile),
                                     new ActionDialog.OnItemClickListener() {

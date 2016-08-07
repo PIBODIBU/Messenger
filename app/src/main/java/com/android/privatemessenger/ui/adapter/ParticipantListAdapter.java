@@ -1,7 +1,6 @@
 package com.android.privatemessenger.ui.adapter;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,15 +12,14 @@ import android.widget.TextView;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.User;
-import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ContactsAllAdapter extends RecyclerView.Adapter<ContactsAllAdapter.BaseViewHolder> {
-    private final String TAG = ContactsAllAdapter.this.getClass().getSimpleName();
+public class ParticipantListAdapter extends RecyclerView.Adapter<ParticipantListAdapter.BaseViewHolder> {
+    private final String TAG = ParticipantListAdapter.this.getClass().getSimpleName();
 
     private Context context;
     private ArrayList<User> dataSet;
@@ -29,7 +27,7 @@ public class ContactsAllAdapter extends RecyclerView.Adapter<ContactsAllAdapter.
 
     private boolean selectionModeActivated = false;
 
-    public ContactsAllAdapter(Context context, ArrayList<User> dataSet) {
+    public ParticipantListAdapter(Context context, ArrayList<User> dataSet) {
         this.context = context;
         this.dataSet = dataSet;
     }
@@ -57,19 +55,18 @@ public class ContactsAllAdapter extends RecyclerView.Adapter<ContactsAllAdapter.
     }
 
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ParticipantListAdapter.BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_contact, parent, false);
-        return new BaseViewHolder(view);
+        return new ParticipantListAdapter.BaseViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final BaseViewHolder holder, final int position) {
+    public void onBindViewHolder(final ParticipantListAdapter.BaseViewHolder holder, final int position) {
         if (dataSet == null) {
             return;
         }
 
         final User user = dataSet.get(position);
-        final int myId = SharedPrefUtils.getInstance(context).getUser().getId();
 
         if (user == null) {
             return;
