@@ -205,7 +205,7 @@ public class ContactsMyFragment extends Fragment {
                                     }
                                 }))
                         .addItem(new ActionDialog.SimpleActionItem(
-                                getResources().getString(R.string.dialog_action_delete),
+                                getResources().getString(R.string.dialog_action_contact_delete),
                                 new ActionDialog.OnItemClickListener() {
                                     @Override
                                     public void onClick(ActionDialog.AbstractActionItem clickedItem) {

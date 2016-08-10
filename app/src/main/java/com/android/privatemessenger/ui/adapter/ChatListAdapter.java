@@ -92,11 +92,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             BaseViewHolder baseViewHolder = (BaseViewHolder) holder;
             Chat chat = dataSet.get(position);
 
+            baseViewHolder.TVName.setText(chat.getName());
+
             if (chat.getType() == Chat.TYPE_PRIVATE) {
-                baseViewHolder.TVName.setText(chat.getParticipants().get(0).getName());
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_person_primary_24dp);
             } else if (chat.getType() == Chat.TYPE_PUBLIC) {
-                baseViewHolder.TVName.setText(chat.getName());
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_group_primary_24dp);
             }
 

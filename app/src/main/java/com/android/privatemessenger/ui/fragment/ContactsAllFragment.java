@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -19,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
@@ -29,7 +32,6 @@ import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.activity.ChatActivity;
-import com.android.privatemessenger.ui.activity.UserPageActivity;
 import com.android.privatemessenger.ui.adapter.ContactsAllAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.ActionDialog;
@@ -62,11 +64,15 @@ public class ContactsAllFragment extends Fragment {
     @BindView(R.id.fab_create_chat)
     public FloatingActionButton FABChatCreate;
 
+    private View rootView;
+
     public ContactsAllAdapter adapter;
     private ArrayList<User> contactSet;
     private LinearLayoutManager layoutManager;
 
     private MenuItem cancelMenuItem;
+
+    private BottomSheetBehavior behaviorContactInfo;
 
     public ContactsAllFragment() {
 
@@ -75,11 +81,12 @@ public class ContactsAllFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_contacts_all, container, false);
-        ButterKnife.bind(this, view);
+        rootView = inflater.inflate(R.layout.fragment_contacts_all, container, false);
+        ButterKnife.bind(this, rootView);
 
         setupRecyclerView();
         setupSwipeRefresh();
+        setupBottomSheets();
 
         if (savedInstanceState != null && savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_USER) != null) {
             contactSet = (ArrayList<User>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_USER);
@@ -87,7 +94,7 @@ public class ContactsAllFragment extends Fragment {
             loadData();
         }
 
-        return view;
+        return rootView;
     }
 
     @Override
@@ -223,6 +230,10 @@ public class ContactsAllFragment extends Fragment {
         }
     }
 
+    private void setupBottomSheets() {
+
+    }
+
     private void setupRecyclerView() {
         contactSet = new ArrayList<>();
 
@@ -232,96 +243,85 @@ public class ContactsAllFragment extends Fragment {
             public void onClick(int position) {
                 try {
                     final User user = adapter.getDataSet().get(position);
-                    ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
-                            .withCloseAfterItemSelected(true)
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_profile),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            Intent intent = new Intent(getActivity(), UserPageActivity.class)
-                                                    .putExtra(IntentKeys.OBJECT_USER, user);
-                                            startActivity(intent);
-                                        }
 
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_call),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
-                                            startActivity(intent);
-                                        }
+                    final View bottomSheet = getActivity().findViewById(R.id.bottom_sheet_contact);
 
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_start_conversation),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
-                                            progressDialog.show();
+                    bottomSheet.findViewById(R.id.ll_container_phone).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
+                            startActivity(intent);
+                        }
+                    });
+                    bottomSheet.findViewById(R.id.ll_container_start_chat).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
+                            progressDialog.show();
 
-                                            HashMap<String, Object> data = new HashMap<>();
-                                            List<UserId> userIds = new ArrayList<>();
+                            HashMap<String, Object> data = new HashMap<>();
+                            List<UserId> userIds = new ArrayList<>();
 
-                                            userIds.add(new UserId(user.getId()));
-                                            userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
+                            userIds.add(new UserId(user.getId()));
+                            userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
 
-                                            data.put(IAPIService.PARAM_USER_IDS, userIds);
-                                            data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+                            data.put(IAPIService.PARAM_USER_IDS, userIds);
+                            data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
 
-                                            RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
-                                                @Override
-                                                public void onResponse(Call<Chat> call, Response<Chat> response) {
-                                                    if (response != null & response.body() != null) {
-                                                        redirectToChatRoom(response.body());
-                                                    } else {
-                                                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                                                    }
+                            RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                @Override
+                                public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                    if (response != null & response.body() != null) {
+                                        redirectToChatRoom(response.body());
+                                    } else {
+                                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                    }
 
-                                                    progressDialog.dismiss();
-                                                }
+                                    progressDialog.dismiss();
+                                }
 
-                                                @Override
-                                                public void onFailure(Call<Chat> call, Throwable t) {
-                                                    Log.e(TAG, "onFailure()-> ", t);
-                                                    Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                                                    progressDialog.dismiss();
-                                                }
-                                            });
-                                        }
+                                @Override
+                                public void onFailure(Call<Chat> call, Throwable t) {
+                                    Log.e(TAG, "onFailure()-> ", t);
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                }
+                            });
+                        }
+                    });
+                    bottomSheet.findViewById(R.id.toolbar_close_dialog).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (behaviorContactInfo != null) {
+                                behaviorContactInfo.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                            }
+                        }
+                    });
+                    bottomSheet.findViewById(R.id.toolbar_copy_name).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ((ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
+                            Toast.makeText(
+                                    getActivity(),
+                                    getResources().getString(R.string.toast_name_copied),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    bottomSheet.findViewById(R.id.toolbar_menu).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Toast.makeText(getActivity(), "menu", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_copy_name),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            ((ClipboardManager) getActivity().getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
-                                            Toast.makeText(
-                                                    getActivity(),
-                                                    getResources().getString(R.string.toast_copied),
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
+                    ((CollapsingToolbarLayout) bottomSheet.findViewById(R.id.collapsing_toolbar_dialog)).setTitle(user.getName());
+                    ((TextView) bottomSheet.findViewById(R.id.tv_phone)).setText(
+                            user.getPhone().equals("") ? getResources().getString(R.string.no_info) : user.getPhone());
+                    ((TextView) bottomSheet.findViewById(R.id.tv_email)).setText(
+                            user.getEmail().equals("") ? getResources().getString(R.string.no_info) : user.getEmail());
 
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .build();
-
-                    actionDialog.show();
+                    behaviorContactInfo = BottomSheetBehavior.from(bottomSheet);
+                    behaviorContactInfo.setState(BottomSheetBehavior.STATE_EXPANDED);
                 } catch (Exception ex) {
                     Log.e(TAG, "onClick()-> ", ex);
                 }

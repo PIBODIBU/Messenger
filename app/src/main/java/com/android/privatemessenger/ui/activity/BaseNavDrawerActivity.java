@@ -285,7 +285,6 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                                     Toast.makeText(BaseNavDrawerActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                                                 }
                                             });
-
                                 }
                                 default: {
                                     break;

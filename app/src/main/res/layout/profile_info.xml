@@ -3,60 +3,117 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:showIn="@layout/activity_user_page">
+    android:background="@color/colorBackground"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="3dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            app:srcCompat="@drawable/ic_phone_iphone_grey_24dp" />
-
-        <TextView
-            android:id="@+id/tv_phone"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:gravity="center_vertical"
-            android:text="+380930808394"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="18sp" />
-    </LinearLayout>
+            android:orientation="vertical">
 
-    <LinearLayout
+            <LinearLayout
+                android:id="@+id/ll_container_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    app:srcCompat="@drawable/ic_call_primary_24dp" />
+
+                <TextView
+                    android:id="@+id/tv_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:text="+380930808394"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_marginLeft="70dp"
+                android:background="@color/colorDivider" />
+
+            <LinearLayout
+                android:id="@+id/ll_container_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/item_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    app:srcCompat="@drawable/ic_email_primary_18dp" />
+
+                <TextView
+                    android:id="@+id/tv_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:text="cup.cake@inbox.ru"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="3dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
-            app:srcCompat="@drawable/ic_email_grey_24dp" />
-
-        <TextView
-            android:id="@+id/tv_email"
+        <LinearLayout
+            android:id="@+id/ll_container_start_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
+            android:background="@drawable/item_bg"
+            android:clickable="true"
             android:gravity="center_vertical"
-            android:text="cup.cake@inbox.ru"
-            android:textColor="@color/colorTextPrimary"
-            android:textSize="18sp" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_conversation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:gravity="center"
+                android:text="Начать беседу"
+                android:textColor="@color/colorPrimary"
+                android:textSize="20sp" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

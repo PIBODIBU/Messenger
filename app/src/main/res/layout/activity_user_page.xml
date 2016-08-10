@@ -57,5 +57,4 @@
         app:rippleColor="@color/colorAccentLight"
         app:srcCompat="@drawable/ic_call_white_24dp"
         app:useCompatPadding="true" />
-
 </android.support.design.widget.CoordinatorLayout>

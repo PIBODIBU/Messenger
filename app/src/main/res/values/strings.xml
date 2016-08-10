@@ -37,6 +37,7 @@
     <string name="toast_send_error">Ошибка при отправке</string>
     <string name="toast_enter_name">Введите имя</string>
     <string name="toast_copied">Скопировано в буфер обмена</string>
+    <string name="toast_name_copied">Имя скопировано в буфер обмена</string>
     <string name="toast_create_error">Ошибка при создании</string>
     <string name="toast_chat_limit_reached">Достигнуто максимальное количество пользователей</string>
 
@@ -78,4 +79,5 @@
     <string name="toast_user_removed">Успешно удален</string>
     <string name="dialog_remove_user">Вы уверенны, что хотите выгнать пользователя?</string>
     <string name="dialog_leave_chat">Вы уверенны, что хотите покинуть беседу?</string>
+    <string name="dialog_action_contact_delete">Удалить</string>
 </resources>

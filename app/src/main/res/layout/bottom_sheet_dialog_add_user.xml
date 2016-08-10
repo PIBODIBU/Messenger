@@ -45,13 +45,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/dialog_toolbar"
-            android:background="@color/white" />
+            android:background="@color/white"
+            android:paddingBottom="48dp" />
 
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/recycler_view"
+            android:layout_height="48dp"
+            android:layout_alignBottom="@+id/recycler_view"
             android:background="@drawable/item_bg_white"
             android:text="@string/btn_cancel"
             android:textColor="@color/colorPrimary"
