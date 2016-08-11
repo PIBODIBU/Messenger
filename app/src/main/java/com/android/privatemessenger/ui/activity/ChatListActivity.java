@@ -56,7 +56,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
     private ChatListAdapter adapter;
     private ArrayList<Chat> chatSet;
-    private ArrayList<UnreadMessage> unreadMessages;
     private LinearLayoutManager layoutManager;
 
     private Realm realm;
@@ -74,23 +73,32 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         ButterKnife.bind(this);
         getDrawer();
 
-        setupRealm();
-        getUnreadCount();
         setupRecyclerView();
         setupSwipeRefresh();
         loadData();
+        setupRealm();
+//        getUnreadCount();
         setupReceivers();
         updateGCMId();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getUnreadCount();
     }
 
     private void getUnreadCount() {
         Log.d(TAG, "getUnreadCount()-> called");
 
-        unreadMessages = new ArrayList<>();
+        ArrayList<UnreadMessage> unreadMessages = new ArrayList<>();
         RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).findAll();
         unreadMessages.addAll(realmResults);
+        adapter.setUnreadMessages(unreadMessages);
+        adapter.notifyDataSetChanged();
 
-        realmResults.addChangeListener(new RealmChangeListener<RealmResults<UnreadMessage>>() {
+       /* realmResults.addChangeListener(new RealmChangeListener<RealmResults<UnreadMessage>>() {
             @Override
             public void onChange(RealmResults<UnreadMessage> element) {
                 Log.d(TAG, "onChange()-> called");
@@ -99,7 +107,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 adapter.getUnreadMessages().addAll(element);
                 adapter.notifyDataSetChanged();
             }
-        });
+        });*/
     }
 
     private void setupRealm() {
@@ -124,8 +132,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                     loadData();
                     break;
                 default:
-                    getUnreadCount();
-
                     if (data == null) {
                         return;
                     }
@@ -190,6 +196,8 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                         intent.getIntExtra(IntentKeys.CHAT_ROOM_ID, -1),
                         message
                 );
+
+                getUnreadCount();
             }
         };
 
@@ -266,7 +274,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         adapter = new ChatListAdapter(this, recyclerView, chatSet);
-        adapter.setUnreadMessages(unreadMessages);
         recyclerView.setAdapter(adapter);
 
         adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {

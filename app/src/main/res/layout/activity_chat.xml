@@ -27,6 +27,12 @@
 
         <View
             android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_below="@+id/toolbar"
+            android:background="@drawable/shadow" />
+
+        <View
+            android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_above="@+id/rl_controls"
             android:background="@drawable/shadow_to_top" />
