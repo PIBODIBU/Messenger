@@ -20,6 +20,7 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.realm.RealmDB;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
@@ -36,7 +37,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -71,8 +74,8 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         ButterKnife.bind(this);
         getDrawer();
 
-        /*setupRealm();
-        getUnreadCount();*/
+        setupRealm();
+        getUnreadCount();
         setupRecyclerView();
         setupSwipeRefresh();
         loadData();
@@ -81,7 +84,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     }
 
     private void getUnreadCount() {
-       /* Log.d(TAG, "getUnreadCount()-> called");
+        Log.d(TAG, "getUnreadCount()-> called");
 
         unreadMessages = new ArrayList<>();
         RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).findAll();
@@ -96,15 +99,16 @@ public class ChatListActivity extends BaseNavDrawerActivity {
                 adapter.getUnreadMessages().addAll(element);
                 adapter.notifyDataSetChanged();
             }
-        });*/
+        });
     }
 
     private void setupRealm() {
-        realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
+       /* realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
                 .name(Realm.DEFAULT_REALM_NAME)
                 .schemaVersion(0)
                 .deleteRealmIfMigrationNeeded()
-                .build());
+                .build());*/
+        realm = RealmDB.getDefault(this);
     }
 
     @Override

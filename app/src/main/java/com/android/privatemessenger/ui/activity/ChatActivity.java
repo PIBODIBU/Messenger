@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,10 +27,12 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.ContactInfoBottomSheet;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
 import com.android.privatemessenger.utils.IntentKeys;
@@ -45,6 +48,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -175,8 +179,8 @@ public class ChatActivity extends BaseNavDrawerActivity {
                             return;
                         }
 
-                        startActivity(new Intent(ChatActivity.this, UserPageActivity.class)
-                                .putExtra(IntentKeys.OBJECT_USER, user));
+                        ContactInfoBottomSheet bottomSheet = new ContactInfoBottomSheet(ChatActivity.this);
+                        bottomSheet.show(user);
                     }
 
                     @Override
@@ -215,13 +219,13 @@ public class ChatActivity extends BaseNavDrawerActivity {
     }
 
     private void deleteUnreadCounter() {
-        /*final RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).equalTo("chatId", chat.getId()).findAll();
+        final RealmResults<UnreadMessage> realmResults = realm.where(UnreadMessage.class).equalTo("chatId", chat.getId()).findAll();
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 realmResults.deleteAllFromRealm();
             }
-        });*/
+        });
     }
 
     public void sendMessage(final Message message) {

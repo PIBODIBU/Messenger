@@ -314,11 +314,15 @@ public class ContactsAllFragment extends Fragment {
                         }
                     });
 
-                    ((CollapsingToolbarLayout) bottomSheet.findViewById(R.id.collapsing_toolbar_dialog)).setTitle(user.getName());
+                    ((CollapsingToolbarLayout) bottomSheet.findViewById(R.id.collapsing_toolbar_dialog)).setTitle(
+                            user.getName() == null || user.getName().equals("")
+                                    ? getResources().getString(R.string.no_info) : user.getName());
                     ((TextView) bottomSheet.findViewById(R.id.tv_phone)).setText(
-                            user.getPhone().equals("") ? getResources().getString(R.string.no_info) : user.getPhone());
+                            user.getPhone() == null || user.getPhone().equals("")
+                                    ? getResources().getString(R.string.no_info) : user.getPhone());
                     ((TextView) bottomSheet.findViewById(R.id.tv_email)).setText(
-                            user.getEmail().equals("") ? getResources().getString(R.string.no_info) : user.getEmail());
+                            user.getEmail() == null || user.getEmail().equals("")
+                                    ? getResources().getString(R.string.no_info) : user.getEmail());
 
                     behaviorContactInfo = BottomSheetBehavior.from(bottomSheet);
                     behaviorContactInfo.setState(BottomSheetBehavior.STATE_EXPANDED);

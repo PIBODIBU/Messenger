@@ -1,71 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.android.privatemessenger.ui.activity.ChatActivity">
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/rl_controls"
-        android:layout_below="@+id/toolbar"
-        android:background="@drawable/chat_bg" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_above="@+id/rl_controls"
-        android:background="@drawable/shadow_to_top" />
+    tools:activity="com.android.privatemessenger.ui.activity.ChatActivity">
 
     <RelativeLayout
-        android:id="@+id/rl_controls"
+        android:id="@+id/root_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/white"
-        android:padding="0dp">
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/et_message"
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/rl_controls"
+            android:layout_below="@+id/toolbar"
+            android:background="@drawable/chat_bg" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_above="@+id/rl_controls"
+            android:background="@drawable/shadow_to_top" />
+
+        <RelativeLayout
+            android:id="@+id/rl_controls"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_toLeftOf="@+id/btn_send"
-            android:layout_toStartOf="@+id/btn_send"
-            android:background="@android:color/transparent"
-            android:hint="@string/hint_type_message"
-            android:inputType="textCapSentences"
-            android:maxHeight="100dp"
-            android:minHeight="48dp" />
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            android:padding="0dp">
 
-        <ImageButton
-            android:id="@+id/btn_send"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignBottom="@+id/et_message"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/item_bg"
-            android:padding="8dp"
-            android:scaleType="fitXY"
-            android:text="@string/btn_send"
-            android:textSize="14sp"
-            app:srcCompat="@drawable/ic_send_primary_24dp" />
+            <EditText
+                android:id="@+id/et_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_toLeftOf="@+id/btn_send"
+                android:layout_toStartOf="@+id/btn_send"
+                android:background="@android:color/transparent"
+                android:hint="@string/hint_type_message"
+                android:inputType="textCapSentences"
+                android:maxHeight="100dp"
+                android:minHeight="48dp" />
+
+            <ImageButton
+                android:id="@+id/btn_send"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignBottom="@+id/et_message"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/item_bg"
+                android:padding="8dp"
+                android:scaleType="fitXY"
+                android:text="@string/btn_send"
+                android:textSize="14sp"
+                app:srcCompat="@drawable/ic_send_primary_24dp" />
+        </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>
+
+    <include layout="@layout/bottom_sheet_contact_info" />
+</android.support.design.widget.CoordinatorLayout>

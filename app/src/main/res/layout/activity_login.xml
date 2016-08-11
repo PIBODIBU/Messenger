@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context="com.android.privatemessenger.ui.activity.LoginActivity">
+    tools:activity="com.android.privatemessenger.ui.activity.LoginActivity">
 
     <include layout="@layout/toolbar" />
 

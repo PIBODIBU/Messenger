@@ -36,10 +36,6 @@
             android:name=".ui.activity.CallActivity"
             android:label="@string/activity_call"
             android:windowSoftInputMode="stateAlwaysVisible" />
-        <activity
-            android:name=".ui.activity.UserPageActivity"
-            android:label="@string/title_activity_user_page"
-            android:theme="@style/AppTheme" />
         <activity android:name=".ui.activity.MyProfileActivity" />
         <activity android:name=".ui.activity.MyProfileUpdateActivity" />
 
@@ -57,6 +53,7 @@
         <activity android:name=".ui.activity.ContactAddActivity" />
         <activity android:name=".ui.activity.ContactUpdateActivity" />
         <activity android:name=".ui.activity.ChatSettingsActivity" />
+        <activity android:name=".ui.activity.DebugActivity" />
     </application>
 
 </manifest>

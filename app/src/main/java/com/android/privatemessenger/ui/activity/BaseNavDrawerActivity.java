@@ -146,6 +146,11 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withIcon(GoogleMaterial.Icon.gmd_dialpad)
                 .withIdentifier(DrawerItems.CallActivity.ordinal());
 
+        final PrimaryDrawerItem debug = new PrimaryDrawerItem()
+                .withName(getResources().getString(R.string.drawer_debug))
+                .withIcon(GoogleMaterial.Icon.gmd_developer_mode)
+                .withIdentifier(DrawerItems.DebugActivity.ordinal());
+
         final PrimaryDrawerItem logout = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_logout))
                 .withIcon(GoogleMaterial.Icon.gmd_settings_power)
@@ -178,6 +183,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                         chatList,
                         contacts,
                         call,
+                        debug,
                         new DividerDrawerItem(),
                         logout
                 )
@@ -254,6 +260,16 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                         break;
                                     } else {
                                         startActivity(new Intent(BaseNavDrawerActivity.this, CallActivity.class)
+                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                        finish();
+                                        break;
+                                    }
+                                }
+                                case DebugActivity: {
+                                    if (currentClass.equals(DebugActivity.class.getSimpleName())) {
+                                        break;
+                                    } else {
+                                        startActivity(new Intent(BaseNavDrawerActivity.this, DebugActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                         finish();
                                         break;
@@ -378,6 +394,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         ChatListActivity,
         ContactListActivity,
         CallActivity,
+        DebugActivity,
         Exit
     }
 }

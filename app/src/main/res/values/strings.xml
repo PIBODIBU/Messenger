@@ -12,6 +12,7 @@
     <string name="drawer_chat_list">Диалоги</string>
     <string name="drawer_contacts">Контакты</string>
     <string name="drawer_call">Вызов</string>
+    <string name="drawer_debug">Debug</string>
     <string name="drawer_logout">Выход</string>
 
     <string name="tab_contacts_all">Пользователи</string>

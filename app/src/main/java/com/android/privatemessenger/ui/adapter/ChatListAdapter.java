@@ -101,7 +101,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             int unreadCount = 0;
-            /*for (UnreadMessage unreadMessage : unreadMessages) {
+            for (UnreadMessage unreadMessage : unreadMessages) {
                 if (unreadMessage == null) {
                     continue;
                 }
@@ -112,7 +112,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     unreadCount = unreadMessage.getUnreadCount();
                     break;
                 }
-            }*/
+            }
 
             if (unreadCount == 0) {
                 baseViewHolder.TVCounter.setVisibility(View.GONE);

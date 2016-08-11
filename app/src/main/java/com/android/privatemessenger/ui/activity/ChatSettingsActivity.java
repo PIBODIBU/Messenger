@@ -34,6 +34,7 @@ import com.android.privatemessenger.ui.adapter.OnItemClickListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.ActionDialog;
 import com.android.privatemessenger.ui.dialog.AttentionDialog;
+import com.android.privatemessenger.ui.dialog.ContactInfoBottomSheet;
 import com.android.privatemessenger.ui.dialog.ProgressDialog;
 import com.android.privatemessenger.ui.dialog.UserListBottomSheet;
 import com.android.privatemessenger.utils.IntentKeys;
@@ -190,38 +191,8 @@ public class ChatSettingsActivity extends BaseActivity {
                                     new ActionDialog.OnItemClickListener() {
                                         @Override
                                         public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            Intent intent = new Intent(ChatSettingsActivity.this, UserPageActivity.class)
-                                                    .putExtra(IntentKeys.OBJECT_USER, user);
-                                            startActivity(intent);
-                                        }
-
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_call),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
-                                            startActivity(intent);
-                                        }
-
-                                        @Override
-                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
-                                        }
-                                    }))
-                            .addItem(new ActionDialog.SimpleActionItem(
-                                    getResources().getString(R.string.dialog_action_copy_name),
-                                    new ActionDialog.OnItemClickListener() {
-                                        @Override
-                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
-                                            ((ClipboardManager) ChatSettingsActivity.this.getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("user_name", user.getName()));
-                                            Toast.makeText(
-                                                    ChatSettingsActivity.this,
-                                                    getResources().getString(R.string.toast_copied),
-                                                    Toast.LENGTH_SHORT).show();
+                                            ContactInfoBottomSheet bottomSheet = new ContactInfoBottomSheet(ChatSettingsActivity.this);
+                                            bottomSheet.show(user);
                                         }
 
                                         @Override
