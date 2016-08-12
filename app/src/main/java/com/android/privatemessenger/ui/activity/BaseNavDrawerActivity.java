@@ -228,10 +228,11 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     if (currentClass.equals(MyProfileActivity.class.getSimpleName())) {
                                         break;
                                     } else {
+                                        finish();
+
                                         startActivity(new Intent(BaseNavDrawerActivity.this, MyProfileActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                                 .putExtra(IntentKeys.OBJECT_USER, SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).getUser()));
-                                        finish();
                                         break;
                                     }
                                 }
@@ -239,9 +240,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     if (currentClass.equals(ChatListActivity.class.getSimpleName())) {
                                         break;
                                     } else {
+                                        finish();
+
                                         startActivity(new Intent(BaseNavDrawerActivity.this, ChatListActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                        finish();
                                         break;
                                     }
                                 }
@@ -249,9 +251,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     if (currentClass.equals(ContactListActivity.class.getSimpleName())) {
                                         break;
                                     } else {
+                                        finish();
+
                                         startActivity(new Intent(BaseNavDrawerActivity.this, ContactListActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                        finish();
                                         break;
                                     }
                                 }
@@ -259,9 +262,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     if (currentClass.equals(CallActivity.class.getSimpleName())) {
                                         break;
                                     } else {
+                                        finish();
+
                                         startActivity(new Intent(BaseNavDrawerActivity.this, CallActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                        finish();
                                         break;
                                     }
                                 }
@@ -269,9 +273,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     if (currentClass.equals(DebugActivity.class.getSimpleName())) {
                                         break;
                                     } else {
+                                        finish();
+
                                         startActivity(new Intent(BaseNavDrawerActivity.this, DebugActivity.class)
                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                        finish();
                                         break;
                                     }
                                 }
@@ -290,9 +295,10 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
                                                     Digits.getSessionManager().clearActiveSession();
                                                     SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).clear();
+
+                                                    finish();
                                                     startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
                                                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                                    finish();
                                                 }
 
                                                 @Override
@@ -365,9 +371,6 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     @Override
     public void startActivity(Intent intent) {
         super.startActivity(intent);
-
-        if (drawer != null)
-            drawer.closeDrawer();
 
         overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }
