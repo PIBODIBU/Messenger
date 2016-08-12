@@ -25,6 +25,7 @@ import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.Contact;
 import com.android.privatemessenger.data.model.ErrorResponse;
+import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.activity.ContactAddActivity;
 import com.android.privatemessenger.ui.activity.ContactUpdateActivity;
@@ -76,7 +77,8 @@ public class ContactsMyFragment extends Fragment {
         setupSwipeRefresh();
 
         if (savedInstanceState != null && savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CONTACT) != null) {
-            contactSet = (ArrayList<Contact>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CONTACT);
+            adapter.setDataSet((ArrayList<Contact>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CONTACT));
+            adapter.notifyDataSetChanged();
         } else {
             loadData();
         }
@@ -86,7 +88,8 @@ public class ContactsMyFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(IntentKeys.ARRAY_LIST_CONTACT, contactSet);
+        outState.putSerializable(IntentKeys.ARRAY_LIST_CONTACT, adapter.getDataSet());
+
         super.onSaveInstanceState(outState);
     }
 

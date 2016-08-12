@@ -103,6 +103,10 @@ public class ContactsMyAdapter extends RecyclerView.Adapter<ContactsMyAdapter.Ba
         return dataSet;
     }
 
+    public void setDataSet(ArrayList<Contact> dataSet) {
+        this.dataSet = dataSet;
+    }
+
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {
         this.recyclerItemClickListener = recyclerItemClickListener;
     }

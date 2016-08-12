@@ -3,4 +3,11 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="app_info_card_margin_left">8dp</dimen>
+    <dimen name="app_info_card_margin_right">8dp</dimen>
+    <dimen name="app_info_card_margin_top">8dp</dimen>
+    <dimen name="app_info_card_margin_left_land">100dp</dimen>
+    <dimen name="app_info_card_margin_right_land">100dp</dimen>
+    <dimen name="app_info_card_margin_top_land">8dp</dimen>
 </resources>

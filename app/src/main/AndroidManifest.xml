@@ -37,7 +37,7 @@
             android:label="@string/activity_call"
             android:windowSoftInputMode="stateAlwaysVisible" />
         <activity android:name=".ui.activity.MyProfileActivity" />
-        <activity android:name=".ui.activity.MyProfileUpdateActivity" />
+        <activity android:name=".ui.activity.MyProfileEditActivity" />
 
         <service android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>

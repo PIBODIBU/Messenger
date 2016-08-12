@@ -10,7 +10,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="200dp"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -21,6 +21,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorPrimary"
             app:expandedTitleMarginBottom="100dp"
+            app:expandedTitleMarginStart="100dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@color/colorPrimaryDark">
 
@@ -49,9 +50,9 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/app_info_card_margin_left"
-                android:layout_marginRight="@dimen/app_info_card_margin_right"
-                android:layout_marginTop="@dimen/app_info_card_margin_top"
+                android:layout_marginLeft="@dimen/app_info_card_margin_left_land"
+                android:layout_marginRight="@dimen/app_info_card_margin_right_land"
+                android:layout_marginTop="@dimen/app_info_card_margin_top_land"
                 app:cardBackgroundColor="@color/white"
                 app:cardUseCompatPadding="true">
 
@@ -82,8 +83,6 @@
                             android:layout_marginLeft="16dp"
                             android:layout_marginStart="16dp"
                             android:gravity="center_vertical"
-                            android:lines="1"
-                            android:maxLines="1"
                             android:text="+380930808394"
                             android:textColor="@color/colorTextPrimary"
                             android:textSize="18sp" />
@@ -117,8 +116,6 @@
                             android:layout_marginLeft="16dp"
                             android:layout_marginStart="16dp"
                             android:gravity="center_vertical"
-                            android:lines="1"
-                            android:maxLines="1"
                             android:text="cup.cake@inbox.ru"
                             android:textColor="@color/colorTextPrimary"
                             android:textSize="18sp" />

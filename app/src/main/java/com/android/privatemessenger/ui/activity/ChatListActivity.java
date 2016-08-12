@@ -75,6 +75,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         setupSwipeRefresh();
         if (savedInstanceState != null && savedInstanceState.containsKey(IntentKeys.ARRAY_LIST_CHAT)) {
             adapter.setDataSet((ArrayList<Chat>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CHAT));
+            adapter.notifyDataSetChanged();
         } else {
             loadData();
         }
@@ -198,10 +199,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
     }
 
     private void loadData() {
-        if (chatSet != null) {
-            chatSet.clear();
-        }
-
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -223,6 +220,10 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
                 if (response.body().size() == 0) {
                     isEndReached = true;
+                }
+
+                if (adapter.getDataSet() != null) {
+                    adapter.getDataSet().clear();
                 }
 
                 for (Chat chat : response.body()) {
@@ -249,9 +250,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
             @Override
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
-                if (chatSet != null) {
-                    chatSet.clear();
-                }
                 loadData();
                 getUnreadCount();
             }

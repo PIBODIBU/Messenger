@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -142,8 +143,12 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     }
 
     private void deactivateSelectionMode() {
-        fab.setImageResource(R.drawable.ic_add_white_24dp);
-        contactsAllFragment.adapter.setSelectionModeActivated(false);
-        cancelMenuItem.setVisible(false);
+        try {
+            fab.setImageResource(R.drawable.ic_add_white_24dp);
+            contactsAllFragment.adapter.setSelectionModeActivated(false);
+            cancelMenuItem.setVisible(false);
+        } catch (Exception ex) {
+            Log.e(TAG, "deactivateSelectionMode()-> ", ex);
+        }
     }
 }

@@ -82,4 +82,5 @@
     <string name="dialog_leave_chat">Вы уверенны, что хотите покинуть беседу?</string>
     <string name="dialog_action_contact_delete">Удалить</string>
     <string name="yesterday">вчера</string>
+    <string name="tv_start_chat">Начать беседу</string>
 </resources>

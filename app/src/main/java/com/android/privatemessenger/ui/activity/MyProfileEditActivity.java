@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -23,6 +22,7 @@ import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
+import com.android.privatemessenger.utils.BundleKeys;
 import com.android.privatemessenger.utils.IntentKeys;
 
 import butterknife.BindColor;
@@ -33,9 +33,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MyProfileUpdateActivity extends BaseActivity {
+public class MyProfileEditActivity extends BaseActivity {
 
-    private final String TAG = MyProfileUpdateActivity.this.getClass().getSimpleName();
+    private final String TAG = MyProfileEditActivity.this.getClass().getSimpleName();
 
     @BindView(R.id.collapsing_toolbar)
     public CollapsingToolbarLayout collapsingToolbar;
@@ -69,6 +69,27 @@ public class MyProfileUpdateActivity extends BaseActivity {
 
         createToolbar();
         initLayout();
+
+        if (savedInstanceState != null) {
+            ETName.setText(savedInstanceState.getString(BundleKeys.MY_NAME, ""));
+            ETEmail.setText(savedInstanceState.getString(BundleKeys.MY_EMAIL, ""));
+
+            if (!savedInstanceState.getString(BundleKeys.MY_NAME, "").equals("")) {
+                collapsingToolbar.setTitle(savedInstanceState.getString(BundleKeys.MY_NAME, user.getName()));
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        try {
+            outState.putString(BundleKeys.MY_NAME, ETName.getText().toString());
+            outState.putString(BundleKeys.MY_EMAIL, ETEmail.getText().toString());
+        } catch (Exception ex) {
+            Log.e(TAG, "onSaveInstanceState()-> ", ex);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -108,10 +129,10 @@ public class MyProfileUpdateActivity extends BaseActivity {
             @Override
             public void onShow(DialogInterface dialog) {
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setTextColor(ContextCompat.getColor(MyProfileUpdateActivity.this, R.color.colorPrimary));
+                        .setTextColor(ContextCompat.getColor(MyProfileEditActivity.this, R.color.colorPrimary));
 
                 alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                        .setTextColor(ContextCompat.getColor(MyProfileUpdateActivity.this, R.color.md_red_500));
+                        .setTextColor(ContextCompat.getColor(MyProfileEditActivity.this, R.color.md_red_500));
             }
         });
 
@@ -135,7 +156,7 @@ public class MyProfileUpdateActivity extends BaseActivity {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response == null || response.body() == null) {
-                    Toast.makeText(MyProfileUpdateActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -148,7 +169,7 @@ public class MyProfileUpdateActivity extends BaseActivity {
             @Override
             public void onFailure(Call<User> call, Throwable t) {
                 progressDialog.cancel();
-                Toast.makeText(MyProfileUpdateActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyProfileEditActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onFailure()-> ", t);
             }
         });

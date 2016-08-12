@@ -126,6 +126,10 @@ public class ContactsAllAdapter extends RecyclerView.Adapter<ContactsAllAdapter.
         return dataSet;
     }
 
+    public void setDataSet(ArrayList<User> dataSet) {
+        this.dataSet = dataSet;
+    }
+
     public boolean isSelectionModeActivated() {
         return selectionModeActivated;
     }

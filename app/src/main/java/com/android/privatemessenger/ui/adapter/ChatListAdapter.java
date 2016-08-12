@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
+import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 
 import java.util.ArrayList;
 
@@ -92,14 +93,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             BaseViewHolder baseViewHolder = (BaseViewHolder) holder;
             Chat chat = dataSet.get(position);
 
+            // Chat name
             baseViewHolder.TVName.setText(chat.getName());
 
+            // Check chat type
             if (chat.getType() == Chat.TYPE_PRIVATE) {
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_person_primary_24dp);
             } else if (chat.getType() == Chat.TYPE_PUBLIC) {
                 baseViewHolder.IVImage.setImageResource(R.drawable.ic_group_primary_24dp);
             }
 
+            // Check for unread messages
             int unreadCount = 0;
             for (UnreadMessage unreadMessage : unreadMessages) {
                 if (unreadMessage == null) {
@@ -113,7 +117,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     break;
                 }
             }
-
             if (unreadCount == 0) {
                 baseViewHolder.TVCounter.setVisibility(View.GONE);
             } else {
@@ -121,13 +124,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 baseViewHolder.TVCounter.setText(String.valueOf(unreadCount));
             }
 
+            // Last message
             baseViewHolder.TVLastMessage.setText(
                     chat.getLastMessage() == null || chat.getLastMessage().getMessage() == null ||
                             chat.getLastMessage().getMessage().equals("") ?
                             context.getResources().getString(R.string.no_messages_yet) : chat.getLastMessage().getMessage()
             );
+
+            // Date
             baseViewHolder.TVDate.setText(chat.getFormattedDate(context));
 
+            // Click listeners
             baseViewHolder.LLRootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

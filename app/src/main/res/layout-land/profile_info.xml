@@ -3,15 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorBackground"
     android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginLeft="@dimen/app_info_card_margin_left_land"
+        android:layout_marginRight="@dimen/app_info_card_margin_right_land"
+        android:layout_marginTop="@dimen/app_info_card_margin_top_land"
         app:cardBackgroundColor="@color/white"
         app:cardUseCompatPadding="true">
 
@@ -85,8 +84,9 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
+        android:layout_marginLeft="@dimen/app_info_card_margin_left_land"
+        android:layout_marginRight="@dimen/app_info_card_margin_right_land"
+        android:layout_marginTop="@dimen/app_info_card_margin_top_land"
         app:cardBackgroundColor="@color/white"
         app:cardUseCompatPadding="true">
 
