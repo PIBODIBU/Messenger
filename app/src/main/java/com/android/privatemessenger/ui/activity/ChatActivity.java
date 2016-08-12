@@ -35,6 +35,7 @@ import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
 import com.android.privatemessenger.ui.dialog.ContactInfoBottomSheet;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
+import com.android.privatemessenger.utils.BundleKeys;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
 import com.android.privatemessenger.utils.ResultCodes;
@@ -84,7 +85,13 @@ public class ChatActivity extends BaseNavDrawerActivity {
         setContentView(R.layout.activity_chat);
 
         if (getIntent() != null) {
-            chat = (Chat) getIntent().getSerializableExtra(IntentKeys.OBJECT_CHAT);
+            try {
+                chat = (Chat) getIntent().getSerializableExtra(IntentKeys.OBJECT_CHAT);
+            } catch (Exception ex) {
+                Log.e(TAG, "onCreate()-> ", ex);
+            }
+        } else {
+            return;
         }
 
         ButterKnife.bind(this);
@@ -96,6 +103,18 @@ public class ChatActivity extends BaseNavDrawerActivity {
         setupRecyclerView();
         setupReceivers();
         loadData(true, true);
+
+        if (savedInstanceState != null) {
+            ETMessage.setText(savedInstanceState.getString(BundleKeys.TYPED_MESSAGE, ""));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (ETMessage != null)
+            outState.putString(BundleKeys.TYPED_MESSAGE, ETMessage.getText().toString());
+
+        super.onSaveInstanceState(outState);
     }
 
     private void updateToolbar() {

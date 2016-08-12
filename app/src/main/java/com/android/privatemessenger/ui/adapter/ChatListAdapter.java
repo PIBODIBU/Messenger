@@ -195,6 +195,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return dataSet;
     }
 
+    public void setDataSet(ArrayList<Chat> dataSet) {
+        this.dataSet = dataSet;
+    }
+
     public void setRecyclerItemClickListener(RecyclerItemClickListener recyclerItemClickListener) {
         this.recyclerItemClickListener = recyclerItemClickListener;
     }

@@ -102,6 +102,7 @@ public class Chat implements Serializable {
             // Format last message date
             format = new SimpleDateFormat("dd.MM", Locale.getDefault());
             format.setTimeZone(TimeZone.getDefault());
+            String messageDate = format.format(lastMessageDate);
 
             // Get device date
             Calendar calendar = Calendar.getInstance();
@@ -109,12 +110,24 @@ public class Chat implements Serializable {
             androidFormatter.setTimeZone(TimeZone.getDefault());
             String androidDayMonth = androidFormatter.format(calendar.getTime());
 
-            if (androidDayMonth.equals(format.format(lastMessageDate))) {
-                return context.getResources().getString(R.string.today);
+            SimpleDateFormat yesterdayFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
+            androidFormatter.setTimeZone(TimeZone.getDefault());
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -1);
+            String yesterdayDate = yesterdayFormat.format(cal.getTime());
+
+            Log.d(TAG, "getFormattedDate()-> yesterday: " + yesterdayDate);
+
+            if (androidDayMonth.equals(messageDate)) {
+                // Today
+                return lastMessage.getFormattedDate();
+            } else if (yesterdayDate.equals(messageDate)) {
+                // Yesterday
+                return context.getResources().getString(R.string.yesterday);
             }
 
             // Format date
-            dayMonth = format.format(lastMessageDate);
+            dayMonth = messageDate;
             String[] splittedDate = dayMonth.split("\\.");
             dayMonth = splittedDate[0] + " " + rusMonths[Integer.valueOf(splittedDate[1]) - 1];
         } catch (ParseException e) {

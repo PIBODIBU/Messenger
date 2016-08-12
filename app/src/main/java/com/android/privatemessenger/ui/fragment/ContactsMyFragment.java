@@ -90,9 +90,13 @@ public class ContactsMyFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    @OnClick(R.id.fab_add_contact)
-    public void addContact() {
-        startActivityForResult(new Intent(getActivity(), ContactAddActivity.class), RequestCodes.ACTIVITY_CONTACTS_ADD);
+    public View.OnClickListener getFabClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(new Intent(getActivity(), ContactAddActivity.class), RequestCodes.ACTIVITY_CONTACTS_ADD);
+            }
+        };
     }
 
     @Override

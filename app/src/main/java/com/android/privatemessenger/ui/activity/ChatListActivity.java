@@ -37,8 +37,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,7 +73,11 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
         setupRecyclerView();
         setupSwipeRefresh();
-        loadData();
+        if (savedInstanceState != null && savedInstanceState.containsKey(IntentKeys.ARRAY_LIST_CHAT)) {
+            adapter.setDataSet((ArrayList<Chat>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_CHAT));
+        } else {
+            loadData();
+        }
         setupRealm();
 //        getUnreadCount();
         setupReceivers();
@@ -89,6 +91,13 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         getUnreadCount();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(IntentKeys.ARRAY_LIST_CHAT, adapter.getDataSet());
+
+        super.onSaveInstanceState(outState);
+    }
+
     private void getUnreadCount() {
         Log.d(TAG, "getUnreadCount()-> called");
 
@@ -97,25 +106,9 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         unreadMessages.addAll(realmResults);
         adapter.setUnreadMessages(unreadMessages);
         adapter.notifyDataSetChanged();
-
-       /* realmResults.addChangeListener(new RealmChangeListener<RealmResults<UnreadMessage>>() {
-            @Override
-            public void onChange(RealmResults<UnreadMessage> element) {
-                Log.d(TAG, "onChange()-> called");
-
-                adapter.getUnreadMessages().clear();
-                adapter.getUnreadMessages().addAll(element);
-                adapter.notifyDataSetChanged();
-            }
-        });*/
     }
 
     private void setupRealm() {
-       /* realm = Realm.getInstance(new RealmConfiguration.Builder(getApplicationContext())
-                .name(Realm.DEFAULT_REALM_NAME)
-                .schemaVersion(0)
-                .deleteRealmIfMigrationNeeded()
-                .build());*/
         realm = RealmDB.getDefault(this);
     }
 

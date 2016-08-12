@@ -81,4 +81,5 @@
     <string name="dialog_remove_user">Вы уверенны, что хотите выгнать пользователя?</string>
     <string name="dialog_leave_chat">Вы уверенны, что хотите покинуть беседу?</string>
     <string name="dialog_action_contact_delete">Удалить</string>
+    <string name="yesterday">вчера</string>
 </resources>

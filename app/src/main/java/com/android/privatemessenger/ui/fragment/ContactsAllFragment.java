@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -32,9 +33,9 @@ import com.android.privatemessenger.data.model.User;
 import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.activity.ChatActivity;
+import com.android.privatemessenger.ui.activity.ContactListActivity;
 import com.android.privatemessenger.ui.adapter.ContactsAllAdapter;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
-import com.android.privatemessenger.ui.dialog.ActionDialog;
 import com.android.privatemessenger.ui.dialog.ChatCreateDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
@@ -61,9 +62,6 @@ public class ContactsAllFragment extends Fragment {
     @BindView(R.id.swipe_layout)
     public SwipeRefreshLayout swipeRefreshLayout;
 
-    @BindView(R.id.fab_create_chat)
-    public FloatingActionButton FABChatCreate;
-
     private View rootView;
 
     public ContactsAllAdapter adapter;
@@ -84,9 +82,9 @@ public class ContactsAllFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_contacts_all, container, false);
         ButterKnife.bind(this, rootView);
 
+        setupLayout();
         setupRecyclerView();
         setupSwipeRefresh();
-        setupBottomSheets();
 
         if (savedInstanceState != null && savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_USER) != null) {
             contactSet = (ArrayList<User>) savedInstanceState.getSerializable(IntentKeys.ARRAY_LIST_USER);
@@ -104,73 +102,72 @@ public class ContactsAllFragment extends Fragment {
     }
 
     private void activateSelectionMode() {
-        FABChatCreate.setImageResource(R.drawable.ic_done_white_24dp);
+        ((ContactListActivity) getActivity()).fab.setImageResource(R.drawable.ic_done_white_24dp);
         adapter.setSelectionModeActivated(true);
         cancelMenuItem.setVisible(true);
     }
 
-    private void deactivateSelectionMode() {
-        FABChatCreate.setImageResource(R.drawable.ic_add_white_24dp);
-        adapter.setSelectionModeActivated(false);
-    }
-
-    @OnClick(R.id.fab_create_chat)
-    public void createChat() {
-        if (!adapter.isSelectionModeActivated()) {
-            activateSelectionMode();
-            return;
-        }
-
-        List<UserId> userIds = new ArrayList<>();
-        for (User user : adapter.getDataSet()) {
-            if (user.isSelected()) {
-                userIds.add(new UserId(user.getId()));
-            }
-        }
-
-        if (userIds.size() == 0) {
-            return;
-        }
-
-        userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
-
-        final HashMap<String, Object> data = new HashMap<>();
-        data.put("user_ids", userIds);
-
-        ChatCreateDialog dialog = new ChatCreateDialog();
-        dialog.setChatCreateCallbacks(new ChatCreateDialog.ChatCreateCallbacks() {
+    public View.OnClickListener getFabClickListener() {
+        return new View.OnClickListener() {
             @Override
-            public void onChatCreate(String chatName) {
-                data.put("chat_name", chatName);
+            public void onClick(View view) {
+                if (!adapter.isSelectionModeActivated()) {
+                    activateSelectionMode();
+                    return;
+                }
 
-                final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                progressDialog.setCancelable(false);
-                progressDialog.setCanceledOnTouchOutside(false);
-                progressDialog.setMessage(getResources().getString(R.string.dialog_loading));
-                progressDialog.show();
-
-                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
-                    @Override
-                    public void onResponse(Call<Chat> call, Response<Chat> response) {
-                        if (response != null & response.body() != null) {
-                            redirectToChatRoom(response.body());
-                        } else {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                        }
-
-                        progressDialog.cancel();
+                List<UserId> userIds = new ArrayList<>();
+                for (User user : adapter.getDataSet()) {
+                    if (user.isSelected()) {
+                        userIds.add(new UserId(user.getId()));
                     }
+                }
 
+                if (userIds.size() == 0) {
+                    return;
+                }
+
+                userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
+
+                final HashMap<String, Object> data = new HashMap<>();
+                data.put("user_ids", userIds);
+
+                ChatCreateDialog dialog = new ChatCreateDialog();
+                dialog.setChatCreateCallbacks(new ChatCreateDialog.ChatCreateCallbacks() {
                     @Override
-                    public void onFailure(Call<Chat> call, Throwable t) {
-                        Log.e(TAG, "onFailure()-> ", t);
-                        Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                        progressDialog.cancel();
+                    public void onChatCreate(String chatName) {
+                        data.put("chat_name", chatName);
+
+                        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+                        progressDialog.setCancelable(false);
+                        progressDialog.setCanceledOnTouchOutside(false);
+                        progressDialog.setMessage(getResources().getString(R.string.dialog_loading));
+                        progressDialog.show();
+
+                        RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                            @Override
+                            public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                if (response != null & response.body() != null) {
+                                    redirectToChatRoom(response.body());
+                                } else {
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                }
+
+                                progressDialog.cancel();
+                            }
+
+                            @Override
+                            public void onFailure(Call<Chat> call, Throwable t) {
+                                Log.e(TAG, "onFailure()-> ", t);
+                                Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                progressDialog.cancel();
+                            }
+                        });
                     }
                 });
+                dialog.show(getActivity().getSupportFragmentManager(), "ChatCreateDialog");
             }
-        });
-        dialog.show(getActivity().getSupportFragmentManager(), "ChatCreateDialog");
+        };
     }
 
     private void loadData() {
@@ -230,7 +227,7 @@ public class ContactsAllFragment extends Fragment {
         }
     }
 
-    private void setupBottomSheets() {
+    private void setupLayout() {
 
     }
 

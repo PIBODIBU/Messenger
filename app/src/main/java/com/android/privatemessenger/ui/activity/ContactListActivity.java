@@ -1,6 +1,7 @@
 package com.android.privatemessenger.ui.activity;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.ui.fragment.ContactsAllFragment;
@@ -29,6 +31,9 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     @BindView(R.id.tab_layout)
     public TabLayout tabLayout;
 
+    @BindView(R.id.fab)
+    public FloatingActionButton fab;
+
     private MenuItem cancelMenuItem;
 
     private ContactsAllFragment contactsAllFragment;
@@ -43,10 +48,15 @@ public class ContactListActivity extends BaseNavDrawerActivity {
         getDrawer();
 
         setupViewPager();
+        setupLayout();
+    }
+
+    private void setupLayout() {
+        fab.setOnClickListener(contactsAllFragment.getFabClickListener());
     }
 
     private void setupViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        final ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         contactsAllFragment = new ContactsAllFragment();
         contactsMyFragment = new ContactsMyFragment();
@@ -56,6 +66,28 @@ public class ContactListActivity extends BaseNavDrawerActivity {
 
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (adapter.getItem(position) instanceof ContactsAllFragment) {
+                    fab.setOnClickListener(contactsAllFragment.getFabClickListener());
+                } else if (adapter.getItem(position) instanceof ContactsMyFragment) {
+                    deactivateSelectionMode();
+                    fab.setOnClickListener(contactsMyFragment.getFabClickListener());
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -110,7 +142,7 @@ public class ContactListActivity extends BaseNavDrawerActivity {
     }
 
     private void deactivateSelectionMode() {
-        contactsAllFragment.FABChatCreate.setImageResource(R.drawable.ic_add_white_24dp);
+        fab.setImageResource(R.drawable.ic_add_white_24dp);
         contactsAllFragment.adapter.setSelectionModeActivated(false);
         cancelMenuItem.setVisible(false);
     }
