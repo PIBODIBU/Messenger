@@ -104,6 +104,8 @@ public class ChatActivity extends BaseNavDrawerActivity {
         setupReceivers();
         loadData(true, true);
 
+        refreshChatsBadge();
+
         if (savedInstanceState != null) {
             ETMessage.setText(savedInstanceState.getString(BundleKeys.TYPED_MESSAGE, ""));
         }

@@ -1,7 +1,10 @@
 package com.android.privatemessenger.ui.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,8 +17,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.broadcast.IntentFilters;
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.ErrorResponse;
+import com.android.privatemessenger.data.model.Message;
+import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.realm.RealmDB;
+import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.digits.sdk.android.Digits;
@@ -24,6 +32,8 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
+import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -32,6 +42,8 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
 import io.fabric.sdk.android.Fabric;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,6 +56,9 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     protected Drawer drawer = null;
     private InputMethodManager inputMethodManager = null;
     private boolean wasInputActive = false;
+
+    private PrimaryDrawerItem chatList;
+    private BroadcastReceiver messageReceiver;
 
     public BaseNavDrawerActivity() {
     }
@@ -80,6 +95,8 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
      * Init base NavigationDrawer
      */
     public void getDrawer() {
+        registerReceivers();
+
         // Creating DrawerBuilder
         createDrawerBuilder(createToolbar());
 
@@ -125,14 +142,37 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
         return toolbar;
     }
 
+    private void registerReceivers() {
+        messageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                refreshChatsBadge();
+            }
+        };
+
+        registerReceiver(messageReceiver, new IntentFilter(IntentFilters.NEW_MESSAGE));
+    }
+
+    protected void refreshChatsBadge() {
+        drawer.updateBadge(DrawerItems.ChatListActivity.ordinal(), new StringHolder(getUnreadDialogCount()));
+    }
+
+    private String getUnreadDialogCount() {
+        Realm realm = RealmDB.getDefault(this);
+        RealmResults<UnreadMessage> results = realm.where(UnreadMessage.class).findAll();
+
+        return results.size() == 0 ? "" : String.valueOf(results.size());
+    }
+
     public void createDrawerBuilder(Toolbar toolbar) {
         final PrimaryDrawerItem myProfile = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_my_profile))
                 .withIcon(GoogleMaterial.Icon.gmd_person)
                 .withIdentifier(DrawerItems.MyProfileActivity.ordinal());
 
-        final PrimaryDrawerItem chatList = new PrimaryDrawerItem()
+        chatList = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_chat_list))
+                .withBadge(String.valueOf(getUnreadDialogCount()))
                 .withIcon(GoogleMaterial.Icon.gmd_chat)
                 .withIdentifier(DrawerItems.ChatListActivity.ordinal());
 
@@ -392,6 +432,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         getCurrentSelection();
+        refreshChatsBadge();
         super.onResume();
     }
 
