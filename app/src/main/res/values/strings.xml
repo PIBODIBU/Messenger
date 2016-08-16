@@ -83,4 +83,8 @@
     <string name="dialog_action_contact_delete">Удалить</string>
     <string name="yesterday">вчера</string>
     <string name="tv_start_chat">Начать беседу</string>
+    <string name="you">Вы: </string>
+    <string name="new_contact">Новый контакт</string>
+    <string name="label_me">я</string>
+    <string name="menu_deauth">Выход</string>
 </resources>

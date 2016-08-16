@@ -5,7 +5,8 @@
     <item
         android:id="@+id/action_profile"
         android:title="@string/menu_profile"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        android:visible="false" />
 
     <item
         android:id="@+id/action_settings"

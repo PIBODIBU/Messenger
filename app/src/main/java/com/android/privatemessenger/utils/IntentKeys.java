@@ -18,4 +18,6 @@ public class IntentKeys {
     public static final String SENDER_NAME = "com.android.privatemessenger.sender_name";
     public static final String SENDER_PHONE = "com.android.privatemessenger.sender_phone";
     public static final String SENDER_EMAIl = "com.android.privatemessenger.sender_email";
+
+    public static final String EXIT = "com.android.privatemessenger.exit";
 }

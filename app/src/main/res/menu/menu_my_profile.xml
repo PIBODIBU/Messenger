@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_edit_profile"
-        app:showAsAction="always" />
-
+        android:id="@+id/action_deauth"
+        android:title="@string/menu_deauth"
+        app:showAsAction="never" />
 </menu>

@@ -47,11 +47,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/app_info_card_margin_left_land"
+                android:layout_marginRight="@dimen/app_info_card_margin_right_land"
                 android:layout_marginTop="24dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp">
+                android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -68,6 +68,7 @@
                     android:gravity="center_vertical"
                     android:hint="@string/hint_name"
                     android:inputType="textCapSentences"
+                    android:text=""
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="18sp"
                     android:theme="@style/AppTheme.EditTextStyle" />
@@ -76,11 +77,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/app_info_card_margin_left_land"
+                android:layout_marginRight="@dimen/app_info_card_margin_right_land"
                 android:layout_marginTop="24dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp">
+                android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="40dp"
@@ -97,6 +98,7 @@
                     android:gravity="center_vertical"
                     android:hint="@string/hint_phone"
                     android:inputType="phone"
+                    android:text=""
                     android:textColor="@color/colorTextPrimary"
                     android:textSize="18sp"
                     android:theme="@style/AppTheme.EditTextStyle" />

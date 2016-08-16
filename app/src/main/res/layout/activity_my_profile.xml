@@ -26,11 +26,12 @@
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
-                style="@style/AppTheme.ToolBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/AppTheme.PopupMenu"
+                app:theme="@style/AppTheme.ToolBarStyle" />
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 

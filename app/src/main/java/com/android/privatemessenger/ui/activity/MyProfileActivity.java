@@ -4,19 +4,28 @@ import android.content.Intent;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.data.api.RetrofitAPI;
+import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
+import com.digits.sdk.android.Digits;
 
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MyProfileActivity extends BaseNavDrawerActivity {
 
@@ -86,8 +95,8 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_edit_profile:
-                editMyProfile();
+            case R.id.action_deauth:
+                deauth();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -98,6 +107,34 @@ public class MyProfileActivity extends BaseNavDrawerActivity {
     public void editMyProfile() {
         startActivityForResult(new Intent(MyProfileActivity.this, MyProfileEditActivity.class)
                 .putExtra(IntentKeys.OBJECT_USER, user), RequestCodes.ACTIVITY_MY_PROFILE_EDIT);
+    }
+
+    private void deauth() {
+        RetrofitAPI
+                .getInstance()
+                .logout(SharedPrefUtils.getInstance(this).getUser().getToken())
+                .enqueue(new Callback<ErrorResponse>() {
+                    @Override
+                    public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                        if (response == null || response.body() == null || response.body().isError()) {
+                            Toast.makeText(MyProfileActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Digits.getSessionManager().clearActiveSession();
+                        SharedPrefUtils.getInstance(MyProfileActivity.this).clear();
+
+                        finish();
+                        startActivity(new Intent(MyProfileActivity.this, LoginActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    }
+
+                    @Override
+                    public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                        Log.e(TAG, "onFailure()-> ", t);
+                        Toast.makeText(MyProfileActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void initLayout() {

@@ -28,6 +28,7 @@ import com.android.privatemessenger.ui.dialog.ExitDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 
 import butterknife.BindColor;
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -52,6 +53,9 @@ public class ContactAddActivity extends BaseActivity {
 
     @BindColor(R.color.white)
     public int colorWhite;
+
+    @BindString(R.string.new_contact)
+    public String titleNewContact;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -125,13 +129,16 @@ public class ContactAddActivity extends BaseActivity {
 
     private void createToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void initLayout() {
         collapsingToolbar.setCollapsedTitleTextColor(colorWhite);
         collapsingToolbar.setExpandedTitleColor(colorWhite);
+        collapsingToolbar.setTitle(titleNewContact);
 
         ETName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -141,7 +148,9 @@ public class ContactAddActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                collapsingToolbar.setTitle(String.valueOf(s));
+                String newText = String.valueOf(s);
+
+                collapsingToolbar.setTitle(newText.equals("") ? titleNewContact : newText);
             }
 
             @Override

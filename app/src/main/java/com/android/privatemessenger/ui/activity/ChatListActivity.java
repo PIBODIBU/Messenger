@@ -68,6 +68,11 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
 
+        if (getIntent() != null && getIntent().getBooleanExtra(IntentKeys.EXIT, false)) {
+            finish();
+            return;
+        }
+
         ButterKnife.bind(this);
         getDrawer();
 
@@ -80,7 +85,6 @@ public class ChatListActivity extends BaseNavDrawerActivity {
             loadData();
         }
         setupRealm();
-//        getUnreadCount();
         setupReceivers();
         updateGCMId();
     }
@@ -160,7 +164,9 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
     @Override
     protected void onDestroy() {
-        unregisterReceiver(messageReceiver);
+        if (messageReceiver != null) {
+            unregisterReceiver(messageReceiver);
+        }
 
         super.onDestroy();
     }

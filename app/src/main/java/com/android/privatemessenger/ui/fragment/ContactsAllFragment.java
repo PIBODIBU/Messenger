@@ -99,8 +99,10 @@ public class ContactsAllFragment extends Fragment {
                 behaviorContactInfo = BottomSheetBehavior.from(refreshBottomSheet(user));
             }
 
-            behaviorContactInfo.setState(savedInstanceState.getInt(BundleKeys.BOTTOM_SHEET_STATE, -1) == -1 ?
-                    BottomSheetBehavior.STATE_COLLAPSED : savedInstanceState.getInt(BundleKeys.BOTTOM_SHEET_STATE, -1));
+            if (behaviorContactInfo != null) {
+                behaviorContactInfo.setState(savedInstanceState.getInt(BundleKeys.BOTTOM_SHEET_STATE, -1) == -1 ?
+                        BottomSheetBehavior.STATE_COLLAPSED : savedInstanceState.getInt(BundleKeys.BOTTOM_SHEET_STATE, -1));
+            }
         } else {
             loadData();
         }
@@ -111,8 +113,9 @@ public class ContactsAllFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(IntentKeys.ARRAY_LIST_USER, adapter.getDataSet());
-        outState.putInt(BundleKeys.BOTTOM_SHEET_STATE, behaviorContactInfo.getState());
         outState.putSerializable(BundleKeys.USER, clickedUser);
+        if (behaviorContactInfo != null)
+            outState.putInt(BundleKeys.BOTTOM_SHEET_STATE, behaviorContactInfo.getState());
 
         super.onSaveInstanceState(outState);
     }

@@ -193,7 +193,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
         final PrimaryDrawerItem logout = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_logout))
-                .withIcon(GoogleMaterial.Icon.gmd_settings_power)
+                .withIcon(GoogleMaterial.Icon.gmd_exit_to_app)
                 .withIdentifier(DrawerItems.Exit.ordinal());
 
         String phone = Digits.getSessionManager().getActiveSession() == null ? "" : Digits.getSessionManager().getActiveSession().getPhoneNumber();
@@ -223,7 +223,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                         chatList,
                         contacts,
                         call,
-                        debug,
+                        //debug,
                         new DividerDrawerItem(),
                         logout
                 )
@@ -321,32 +321,9 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     }
                                 }
                                 case Exit: {
-                                    Log.d(TAG, "onItemClick()-> exit clicked");
-                                    RetrofitAPI
-                                            .getInstance()
-                                            .logout(SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).getUser().getToken())
-                                            .enqueue(new Callback<ErrorResponse>() {
-                                                @Override
-                                                public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
-                                                    if (response == null || response.body() == null || response.body().isError()) {
-                                                        Toast.makeText(BaseNavDrawerActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
-
-                                                    Digits.getSessionManager().clearActiveSession();
-                                                    SharedPrefUtils.getInstance(BaseNavDrawerActivity.this).clear();
-
-                                                    finish();
-                                                    startActivity(new Intent(BaseNavDrawerActivity.this, LoginActivity.class)
-                                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                                                }
-
-                                                @Override
-                                                public void onFailure(Call<ErrorResponse> call, Throwable t) {
-                                                    Log.e(TAG, "onFailure()-> ", t);
-                                                    Toast.makeText(BaseNavDrawerActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                    startActivity(new Intent(BaseNavDrawerActivity.this, ChatListActivity.class)
+                                            .putExtra(IntentKeys.EXIT, true)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                 }
                                 default: {
                                     break;
