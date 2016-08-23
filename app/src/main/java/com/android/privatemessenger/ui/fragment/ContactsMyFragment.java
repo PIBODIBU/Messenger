@@ -1,6 +1,7 @@
 package com.android.privatemessenger.ui.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
@@ -22,11 +23,15 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
+import com.android.privatemessenger.data.api.IAPIService;
 import com.android.privatemessenger.data.api.RetrofitAPI;
+import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Contact;
 import com.android.privatemessenger.data.model.ErrorResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
+import com.android.privatemessenger.ui.activity.ChatActivity;
 import com.android.privatemessenger.ui.activity.ContactAddActivity;
 import com.android.privatemessenger.ui.activity.ContactUpdateActivity;
 import com.android.privatemessenger.ui.adapter.ContactsMyAdapter;
@@ -37,6 +42,7 @@ import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -182,9 +188,8 @@ public class ContactsMyFragment extends Fragment {
             public void onClick(int position) {
                 final Contact contact = adapter.getDataSet().get(position);
 
-                ActionDialog actionDialog = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
+                ActionDialog.Builder actionDialogBuilder = new ActionDialog.Builder(getActivity().getSupportFragmentManager(), getActivity())
                         .withCloseAfterItemSelected(true)
-
                         .addItem(new ActionDialog.SimpleActionItem(
                                 getResources().getString(R.string.dialog_action_call),
                                 new ActionDialog.OnItemClickListener() {
@@ -246,7 +251,7 @@ public class ContactsMyFragment extends Fragment {
                                     public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
                                     }
                                 }))
-                        .addItem(new ActionDialog.SimpleActionItem(
+                        /*.addItem(new ActionDialog.SimpleActionItem(
                                 getResources().getString(R.string.dialog_action_copy_name),
                                 new ActionDialog.OnItemClickListener() {
                                     @Override
@@ -261,10 +266,81 @@ public class ContactsMyFragment extends Fragment {
                                     @Override
                                     public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
                                     }
-                                }))
-                        .build();
+                                }))*/;
 
-                actionDialog.show();
+                if (contact.isRegistered()) {
+                    actionDialogBuilder
+                            .addItem(new ActionDialog.SimpleActionItem(
+                                    getResources().getString(R.string.dialog_action_start_conversation),
+                                    new ActionDialog.OnItemClickListener() {
+                                        final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
+
+                                        void onError() {
+                                            Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                            progressDialog.dismiss();
+                                        }
+
+                                        @Override
+                                        public void onClick(ActionDialog.AbstractActionItem clickedItem) {
+                                            progressDialog.show();
+
+                                            // Get user by phone
+                                            RetrofitAPI.getInstance().getUserByPhone(
+                                                    SharedPrefUtils.getInstance(getActivity()).getUser().getToken(),
+                                                    contact.getPhone()
+                                            ).enqueue(new Callback<User>() {
+                                                @Override
+                                                public void onResponse(Call<User> call, Response<User> response) {
+                                                    if (response == null || response.body() == null) {
+                                                        onError();
+                                                        return;
+                                                    }
+
+                                                    User user = response.body();
+
+                                                    HashMap<String, Object> data = new HashMap<>();
+                                                    List<UserId> userIds = new ArrayList<>();
+
+                                                    // Add users to the new conversation
+                                                    userIds.add(new UserId(user.getId()));
+                                                    userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
+
+                                                    data.put(IAPIService.PARAM_USER_IDS, userIds);
+                                                    data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+
+                                                    RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                                        @Override
+                                                        public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                                            if (response == null || response.body() == null) {
+                                                                onError();
+                                                                return;
+                                                            }
+
+                                                            redirectToChatRoom(response.body());
+                                                            progressDialog.dismiss();
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<Chat> call, Throwable t) {
+                                                            onError();
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<User> call, Throwable t) {
+                                                    onError();
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onLongClick(ActionDialog.AbstractActionItem clickedItem) {
+                                        }
+                                    }));
+                }
+
+                actionDialogBuilder.build().show();
             }
 
             @Override
@@ -279,6 +355,16 @@ public class ContactsMyFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+    }
+
+    private void redirectToChatRoom(Chat chat) {
+        try {
+            Intent intent = new Intent(getActivity(), ChatActivity.class)
+                    .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chat);
+            startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
+        } catch (Exception ex) {
+            Log.e(TAG, "onClick()-> ", ex);
+        }
     }
 
     public MenuItem getCancelMenuItem() {

@@ -70,6 +70,9 @@ public interface IAPIService {
     @GET("my/contacts")
     Call<List<Contact>> getMyContacts(@Query("token") String token);
 
+    @GET("my/contacts/user")
+    Call<User> getUserByPhone(@Query("token") String token, @Query("phone") String phone);
+
     @FormUrlEncoded
     @POST("my/contacts/add")
     Call<ErrorResponse> addContact(@Field("token") String token, @Field("name") String name, @Field("phone") String phone);

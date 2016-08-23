@@ -18,11 +18,16 @@ public class Contact implements Serializable {
     @SerializedName("name")
     private String name;
 
-    public Contact(int id, int ownerId, String phone, String name) {
+    @SerializedName("is_registered")
+    private String isRegistered;
+
+
+    public Contact(int id, int ownerId, String phone, String name, String isRegistered) {
         this.id = id;
         this.ownerId = ownerId;
         this.phone = phone;
         this.name = name;
+        this.isRegistered = isRegistered;
     }
 
     public int getId() {
@@ -39,5 +44,9 @@ public class Contact implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered.equals("1");
     }
 }

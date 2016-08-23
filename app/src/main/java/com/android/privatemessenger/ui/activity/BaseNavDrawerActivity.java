@@ -191,7 +191,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withIcon(GoogleMaterial.Icon.gmd_developer_mode)
                 .withIdentifier(DrawerItems.DebugActivity.ordinal());
 
-        final PrimaryDrawerItem logout = new PrimaryDrawerItem()
+        final PrimaryDrawerItem exit = new PrimaryDrawerItem()
                 .withName(getResources().getString(R.string.drawer_logout))
                 .withIcon(GoogleMaterial.Icon.gmd_exit_to_app)
                 .withIdentifier(DrawerItems.Exit.ordinal());
@@ -225,7 +225,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                         call,
                         //debug,
                         new DividerDrawerItem(),
-                        logout
+                        exit
                 )
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -321,6 +321,8 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                                     }
                                 }
                                 case Exit: {
+                                    Log.d(TAG, "onItemClick()-> exit clicked");
+                                    finish();
                                     startActivity(new Intent(BaseNavDrawerActivity.this, ChatListActivity.class)
                                             .putExtra(IntentKeys.EXIT, true)
                                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

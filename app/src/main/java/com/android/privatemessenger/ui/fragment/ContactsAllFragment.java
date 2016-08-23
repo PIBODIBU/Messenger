@@ -199,7 +199,13 @@ public class ContactsAllFragment extends Fragment {
 
         RetrofitAPI.getInstance().getUsers(SharedPrefUtils.getInstance(getActivity()).getUser().getToken()).enqueue(new Callback<List<User>>() {
             private void onComplete() {
-                swipeRefreshLayout.setRefreshing(false);
+//                swipeRefreshLayout.setRefreshing(false);
+                swipeRefreshLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
 
             @Override
@@ -347,6 +353,7 @@ public class ContactsAllFragment extends Fragment {
 
                     behaviorContactInfo = BottomSheetBehavior.from(refreshBottomSheet(user));
                     behaviorContactInfo.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    behaviorContactInfo.setPeekHeight(0);
                 } catch (Exception ex) {
                     Log.e(TAG, "onClick()-> ", ex);
                 }
