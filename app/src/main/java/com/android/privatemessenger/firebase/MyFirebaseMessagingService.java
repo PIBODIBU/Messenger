@@ -57,9 +57,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .putExtra(IntentKeys.SENDER_EMAIl, jsonSender.getString(BroadcastKeys.SENDER_EMAIL))
             );
 
-            if (!ActivityWatcher.isChatActivityShowing() && ActivityWatcher.getCurrentChatId() != jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID)) {
+            //if (!ActivityWatcher.isChatActivityShowing() && ActivityWatcher.getCurrentChatId() != jsonMessage.getInt(BroadcastKeys.CHAT_ROOM_ID)) {
                 sendNotification(jsonSender.getString(BroadcastKeys.SENDER_NAME), jsonMessage.getString(BroadcastKeys.MESSAGE));
-            }
+            //}
         } catch (JSONException e) {
             Log.e(TAG, "onMessageReceived()-> ", e);
         } catch (Exception ex) {

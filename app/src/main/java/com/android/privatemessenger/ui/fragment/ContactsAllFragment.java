@@ -272,32 +272,56 @@ public class ContactsAllFragment extends Fragment {
                 final ProgressDialog progressDialog = com.android.privatemessenger.ui.dialog.ProgressDialog.create(getActivity());
                 progressDialog.show();
 
-                HashMap<String, Object> data = new HashMap<>();
-                List<UserId> userIds = new ArrayList<>();
-
-                userIds.add(new UserId(user.getId()));
-                userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
-
-                data.put(IAPIService.PARAM_USER_IDS, userIds);
-                data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
-
-                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                RetrofitAPI.getInstance().getMyChats(
+                        SharedPrefUtils.getInstance(getActivity()).getUser().getToken()
+                ).enqueue(new Callback<List<Chat>>() {
                     @Override
-                    public void onResponse(Call<Chat> call, Response<Chat> response) {
-                        if (response != null & response.body() != null) {
-                            redirectToChatRoom(response.body());
-                        } else {
+                    public void onResponse(Call<List<Chat>> call, Response<List<Chat>> response) {
+                        if (response == null || response.body() == null) {
                             Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                            return;
                         }
 
-                        progressDialog.dismiss();
+                        for (Chat chat : response.body()) {
+                            if (chat.getType() == Chat.TYPE_PRIVATE && chat.getFriendId() == user.getId()) {
+                                redirectToChatRoom(chat);
+                                progressDialog.dismiss();
+                                return;
+                            }
+                        }
+
+                        // create new chat
+                        HashMap<String, Object> data = new HashMap<>();
+                        List<UserId> userIds = new ArrayList<>();
+                        userIds.add(new UserId(user.getId()));
+                        userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
+                        data.put(IAPIService.PARAM_USER_IDS, userIds);
+                        data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+                        RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                            @Override
+                            public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                if (response != null && response.body() != null) {
+                                    redirectToChatRoom(response.body());
+                                } else {
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                }
+
+                                progressDialog.dismiss();
+                            }
+
+                            @Override
+                            public void onFailure(Call<Chat> call, Throwable t) {
+                                Log.e(TAG, "onFailure()-> ", t);
+                                Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
+                            }
+                        });
+
                     }
 
                     @Override
-                    public void onFailure(Call<Chat> call, Throwable t) {
-                        Log.e(TAG, "onFailure()-> ", t);
+                    public void onFailure(Call<List<Chat>> call, Throwable t) {
                         Toast.makeText(getActivity(), getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();
                     }
                 });
             }

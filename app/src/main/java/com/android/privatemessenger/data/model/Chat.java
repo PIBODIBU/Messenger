@@ -43,15 +43,20 @@ public class Chat implements Serializable {
     @SerializedName("type")
     private int type;
 
+    @SerializedName("friend_id")
+    private int friendId;
+
     private int unreadCount;
 
-    public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants, int type) {
+    public Chat(String name, String createdAt, Message lastMessage, int participantsCount, List<User> participants,
+                int type, int friendId) {
         this.name = name;
         this.createdAt = createdAt;
         this.lastMessage = lastMessage;
         this.participantsCount = participantsCount;
         this.participants = participants;
         this.type = type;
+        this.friendId = friendId;
     }
 
     public int getId() {
@@ -84,6 +89,10 @@ public class Chat implements Serializable {
 
     public int getType() {
         return type;
+    }
+
+    public int getFriendId() {
+        return friendId;
     }
 
     public String getFormattedDate(Context context) {

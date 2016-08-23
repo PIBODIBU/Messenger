@@ -296,32 +296,54 @@ public class ContactsMyFragment extends Fragment {
                                                         return;
                                                     }
 
-                                                    User user = response.body();
+                                                    final User user = response.body();
 
-                                                    HashMap<String, Object> data = new HashMap<>();
-                                                    List<UserId> userIds = new ArrayList<>();
-
-                                                    // Add users to the new conversation
-                                                    userIds.add(new UserId(user.getId()));
-                                                    userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
-
-                                                    data.put(IAPIService.PARAM_USER_IDS, userIds);
-                                                    data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
-
-                                                    RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                                    RetrofitAPI.getInstance().getMyChats(
+                                                            SharedPrefUtils.getInstance(getActivity()).getUser().getToken()
+                                                    ).enqueue(new Callback<List<Chat>>() {
                                                         @Override
-                                                        public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                                        public void onResponse(Call<List<Chat>> call, Response<List<Chat>> response) {
                                                             if (response == null || response.body() == null) {
                                                                 onError();
                                                                 return;
                                                             }
 
-                                                            redirectToChatRoom(response.body());
-                                                            progressDialog.dismiss();
+                                                            for (Chat chat : response.body()) {
+                                                                if (chat.getType() == Chat.TYPE_PRIVATE && chat.getFriendId() == user.getId()) {
+                                                                    redirectToChatRoom(chat);
+                                                                    progressDialog.dismiss();
+                                                                    return;
+                                                                }
+                                                            }
+
+                                                            HashMap<String, Object> data = new HashMap<>();
+                                                            List<UserId> userIds = new ArrayList<>();
+                                                            // Add users to the new conversation
+                                                            userIds.add(new UserId(user.getId()));
+                                                            userIds.add(new UserId(SharedPrefUtils.getInstance(getActivity()).getUser().getId()));
+                                                            data.put(IAPIService.PARAM_USER_IDS, userIds);
+                                                            data.put(IAPIService.PARAM_CHAT_NAME, "Private chat");
+                                                            RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                                                @Override
+                                                                public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                                                    if (response == null || response.body() == null) {
+                                                                        onError();
+                                                                        return;
+                                                                    }
+
+                                                                    redirectToChatRoom(response.body());
+                                                                    progressDialog.dismiss();
+                                                                }
+
+                                                                @Override
+                                                                public void onFailure(Call<Chat> call, Throwable t) {
+                                                                    onError();
+                                                                }
+                                                            });
                                                         }
 
                                                         @Override
-                                                        public void onFailure(Call<Chat> call, Throwable t) {
+                                                        public void onFailure(Call<List<Chat>> call, Throwable t) {
                                                             onError();
                                                         }
                                                     });
