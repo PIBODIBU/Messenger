@@ -112,16 +112,20 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.slider:library:1.1.5@aar'
 
-    compile 'me.zhanghai.android.materialprogressbar:library:1.1.7'
-
+    // Firebase
     compile 'com.google.firebase:firebase-messaging:9.2.1'
     compile 'com.google.firebase:firebase-core:9.2.1'
 
+    // Digits
     compile('com.digits.sdk.android:digits:1.11.1@aar') {
         transitive = true;
     }
 
+    // Other Material Design libraries
     compile 'com.r0adkll:slidableactivity:2.0.5'
+    compile 'me.zhanghai.android.materialprogressbar:library:1.1.7'
+
+    compile 'com.tubb.smrv:swipemenu-recyclerview:5.2.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

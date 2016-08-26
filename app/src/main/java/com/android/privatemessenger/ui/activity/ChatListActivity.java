@@ -2,15 +2,18 @@ package com.android.privatemessenger.ui.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.privatemessenger.R;
@@ -24,7 +27,8 @@ import com.android.privatemessenger.data.realm.RealmDB;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatListAdapter;
-import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.AttentionDialog;
+import com.android.privatemessenger.ui.dialog.ProgressDialog;
 import com.android.privatemessenger.utils.IntentKeys;
 import com.android.privatemessenger.utils.RequestCodes;
 import com.android.privatemessenger.utils.ResultCodes;
@@ -45,6 +49,9 @@ import retrofit2.Response;
 public class ChatListActivity extends BaseNavDrawerActivity {
 
     public final String TAG = ChatListActivity.this.getClass().getSimpleName();
+
+    @BindView(R.id.root_view)
+    public RelativeLayout rootView;
 
     @BindView(R.id.recycler_view)
     public RecyclerView recyclerView;
@@ -273,7 +280,7 @@ public class ChatListActivity extends BaseNavDrawerActivity {
         adapter = new ChatListAdapter(this, recyclerView, chatSet);
         recyclerView.setAdapter(adapter);
 
-        adapter.setRecyclerItemClickListener(new RecyclerItemClickListener() {
+        adapter.setRecyclerItemClickListener(new ChatListAdapter.RecyclerItemClickListener() {
             @Override
             public void onClick(int position) {
                 try {
@@ -287,6 +294,60 @@ public class ChatListActivity extends BaseNavDrawerActivity {
 
             @Override
             public void onLongClick(int position) {
+
+            }
+
+            @Override
+            public void onChatDelete(int position) {
+                try {
+                    final Chat chat = adapter.getDataSet().get(position);
+
+                    AttentionDialog.createDeleteDialog(ChatListActivity.this, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            final android.app.ProgressDialog dialog = ProgressDialog.create(ChatListActivity.this);
+                            dialog.show();
+
+                            RetrofitAPI.getInstance().deleteChat(
+                                    chat.getId(),
+                                    SharedPrefUtils.getInstance(ChatListActivity.this).getUser().getToken()).enqueue(new Callback<ErrorResponse>() {
+                                private void onEnd() {
+                                    dialog.dismiss();
+                                }
+
+                                private void onError() {
+                                    Toast.makeText(ChatListActivity.this, getResources().getString(R.string.toast_loading_error), Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                                    if (response == null || response.body() == null || response.body().isError()) {
+                                        onError();
+                                        return;
+                                    }
+
+                                    int chatPosition = adapter.getDataSet().indexOf(chat);
+                                    adapter.getDataSet().remove(chatPosition);
+                                    adapter.notifyItemRemoved(chatPosition);
+
+                                    loadData();
+                                    onEnd();
+
+                                    Snackbar.make(rootView, getResources().getString(R.string.toast_chat_deleted_succesfuly), Snackbar.LENGTH_LONG)
+                                            .show();
+                                }
+
+                                @Override
+                                public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                                    onEnd();
+                                    onError();
+                                }
+                            });
+                        }
+                    }).show();
+                } catch (Exception ex) {
+                    return;
+                }
 
             }
         });

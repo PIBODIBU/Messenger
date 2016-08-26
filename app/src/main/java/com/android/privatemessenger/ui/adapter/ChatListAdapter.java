@@ -8,13 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.privatemessenger.R;
 import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
-import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
+import com.tubb.smrv.SwipeHorizontalMenuLayout;
 
 import java.util.ArrayList;
 
@@ -47,7 +46,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class BaseViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.root_view)
-        public RelativeLayout LLRootView;
+        public SwipeHorizontalMenuLayout LLRootView;
 
         @BindView(R.id.tv_name)
         public TextView TVName;
@@ -63,6 +62,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @BindView(R.id.counter)
         public TextView TVCounter;
+
+        @BindView(R.id.iv_menu_left_action_delete_chat)
+        public ImageView IVMenuLeftChatDelete;
+
+        @BindView(R.id.iv_menu_right_action_delete_chat)
+        public ImageView IVMenuRightChatDelete;
 
         public BaseViewHolder(View itemView) {
             super(itemView);
@@ -153,6 +158,26 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     return false;
                 }
             });
+
+            // Left menu
+            baseViewHolder.IVMenuLeftChatDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (recyclerItemClickListener != null) {
+                        recyclerItemClickListener.onChatDelete(holder.getAdapterPosition());
+                    }
+                }
+            });
+
+            // Right menu
+            baseViewHolder.IVMenuRightChatDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (recyclerItemClickListener != null) {
+                        recyclerItemClickListener.onChatDelete(holder.getAdapterPosition());
+                    }
+                }
+            });
         }
     }
 
@@ -212,5 +237,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
         this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    public interface RecyclerItemClickListener {
+        void onClick(int position);
+
+        void onLongClick(int position);
+
+        void onChatDelete(int position);
     }
 }

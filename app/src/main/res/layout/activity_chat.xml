@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:layout_below="@+id/toolbar"
-            android:background="@drawable/shadow" />
+            android:background="@drawable/shadow_top_bottom" />
 
         <View
             android:layout_width="match_parent"
@@ -78,6 +78,4 @@
                 app:srcCompat="@drawable/ic_send_primary_24dp" />
         </RelativeLayout>
     </RelativeLayout>
-
-    <include layout="@layout/bottom_sheet_contact_info" />
 </android.support.design.widget.CoordinatorLayout>

@@ -1,11 +1,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <corners android:radius="10dp" />
+    <corners android:radius="4dp" />
 
     <solid android:color="@color/colorBackgroundMessageForeign" />
-
-    <!-- <stroke
-         android:width="1px"
-         android:color="@color/colorTextHint" />-->
 </shape>

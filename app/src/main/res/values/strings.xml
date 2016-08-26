@@ -87,4 +87,5 @@
     <string name="new_contact">Новый контакт</string>
     <string name="label_me">я</string>
     <string name="menu_deauth">Выход</string>
+    <string name="toast_chat_deleted_succesfuly">Диалог удален</string>
 </resources>
