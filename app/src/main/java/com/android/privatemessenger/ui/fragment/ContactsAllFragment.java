@@ -121,7 +121,7 @@ public class ContactsAllFragment extends Fragment {
     }
 
     private void activateSelectionMode() {
-        ((ContactListActivity) getActivity()).fab.setImageResource(R.drawable.ic_done_white_24dp);
+        ((ContactListActivity) getActivity()).fab.setImageResource(R.drawable.ic_group_add_white_24dp);
         adapter.setSelectionModeActivated(true);
         cancelMenuItem.setVisible(true);
     }

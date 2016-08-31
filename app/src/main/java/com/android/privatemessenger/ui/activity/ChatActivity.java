@@ -1,11 +1,13 @@
 package com.android.privatemessenger.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
@@ -27,11 +29,13 @@ import com.android.privatemessenger.data.model.Chat;
 import com.android.privatemessenger.data.model.Message;
 import com.android.privatemessenger.data.model.SendMessageResponse;
 import com.android.privatemessenger.data.model.User;
+import com.android.privatemessenger.data.model.UserId;
 import com.android.privatemessenger.data.realm.model.UnreadMessage;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.android.privatemessenger.ui.adapter.ChatAdapter;
 import com.android.privatemessenger.ui.adapter.OnLoadMoreListener;
 import com.android.privatemessenger.ui.adapter.RecyclerItemClickListener;
+import com.android.privatemessenger.ui.dialog.ChatCreateDialog;
 import com.android.privatemessenger.ui.dialog.ContactInfoBottomSheet;
 import com.android.privatemessenger.ui.dialog.MessageActionDialog;
 import com.android.privatemessenger.ui.dialog.MessageErrorActionDialog;
@@ -42,6 +46,7 @@ import com.android.privatemessenger.utils.ResultCodes;
 import com.android.privatemessenger.utils.Values;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -161,6 +166,8 @@ public class ChatActivity extends BaseNavDrawerActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_settings).setVisible(chat.getType() == Chat.TYPE_PUBLIC);
         menu.findItem(R.id.action_profile).setVisible(chat.getType() == Chat.TYPE_PRIVATE);
+        menu.findItem(R.id.action_call).setVisible(chat.getType() == Chat.TYPE_PRIVATE);
+        menu.findItem(R.id.action_to_public_dialog).setVisible(chat.getType() == Chat.TYPE_PRIVATE);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -172,7 +179,6 @@ public class ChatActivity extends BaseNavDrawerActivity {
                         .putExtra(IntentKeys.OBJECT_CHAT, chat), RequestCodes.ACTIVITY_CHAT_SETTINGS);
                 return true;
             case R.id.action_profile:
-
                 RetrofitAPI.getInstance().getChatParticipants(chat.getId()).enqueue(new Callback<List<User>>() {
                     private void onError() {
                         Snackbar.make(
@@ -209,8 +215,125 @@ public class ChatActivity extends BaseNavDrawerActivity {
                         onError();
                     }
                 });
+                return true;
 
+            case R.id.action_call:
+                RetrofitAPI.getInstance().getChatParticipants(chat.getId()).enqueue(new Callback<List<User>>() {
+                    private void onError() {
+                        Snackbar.make(
+                                rootView, getResources().getString(R.string.toast_loading_error), Snackbar.LENGTH_LONG).show();
+                    }
 
+                    @Override
+                    public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                        if (response == null || response.body() == null) {
+                            onError();
+                            return;
+                        }
+                        int myId = SharedPrefUtils.getInstance(ChatActivity.this).getUser().getId();
+                        User user = null;
+
+                        for (User participant : response.body()) {
+                            if (participant.getId() != myId) {
+                                user = participant;
+                                break;
+                            }
+                        }
+
+                        if (user == null) {
+                            onError();
+                            return;
+                        }
+
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + user.getPhone()));
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<User>> call, Throwable t) {
+                        onError();
+                    }
+                });
+                return true;
+
+            case R.id.action_to_public_dialog:
+                RetrofitAPI.getInstance().getChatParticipants(chat.getId()).enqueue(new Callback<List<User>>() {
+                    private void onError() {
+                        Snackbar.make(
+                                rootView, getResources().getString(R.string.toast_loading_error), Snackbar.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                        if (response == null || response.body() == null) {
+                            onError();
+                            return;
+                        }
+                        int myId = SharedPrefUtils.getInstance(ChatActivity.this).getUser().getId();
+                        User myFriend = null;
+
+                        for (User participant : response.body()) {
+                            if (participant.getId() != myId) {
+                                myFriend = participant;
+                                break;
+                            }
+                        }
+
+                        if (myFriend == null) {
+                            onError();
+                            return;
+                        }
+
+                        List<UserId> userIds = new ArrayList<>();
+                        userIds.add(new UserId(myFriend.getId()));
+                        userIds.add(new UserId(SharedPrefUtils.getInstance(ChatActivity.this).getUser().getId()));
+
+                        final HashMap<String, Object> data = new HashMap<>();
+                        data.put("user_ids", userIds);
+                        data.put("force_to_public", true);
+
+                        ChatCreateDialog dialog = new ChatCreateDialog();
+                        dialog.setChatCreateCallbacks(new ChatCreateDialog.ChatCreateCallbacks() {
+                            @Override
+                            public void onChatCreate(String chatName) {
+                                data.put("chat_name", chatName);
+
+                                final ProgressDialog progressDialog = new ProgressDialog(ChatActivity.this);
+                                progressDialog.setCancelable(false);
+                                progressDialog.setCanceledOnTouchOutside(false);
+                                progressDialog.setMessage(getResources().getString(R.string.dialog_loading));
+                                progressDialog.show();
+
+                                RetrofitAPI.getInstance().createChat(data).enqueue(new Callback<Chat>() {
+                                    @Override
+                                    public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                        if (response != null & response.body() != null) {
+                                            redirectToChatRoom(response.body());
+                                        } else {
+                                            Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        progressDialog.cancel();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Chat> call, Throwable t) {
+                                        Log.e(TAG, "onFailure()-> ", t);
+                                        Toast.makeText(ChatActivity.this, getResources().getString(R.string.toast_create_error), Toast.LENGTH_SHORT).show();
+                                        progressDialog.cancel();
+                                    }
+                                });
+                            }
+                        });
+
+                        dialog.show(ChatActivity.this.getSupportFragmentManager(), "ChatCreateDialog");
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<User>> call, Throwable t) {
+                        onError();
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -247,6 +370,16 @@ public class ChatActivity extends BaseNavDrawerActivity {
                 realmResults.deleteAllFromRealm();
             }
         });
+    }
+
+    private void redirectToChatRoom(Chat chat) {
+        try {
+            Intent intent = new Intent(ChatActivity.this, ChatActivity.class)
+                    .putExtra(com.android.privatemessenger.utils.IntentKeys.OBJECT_CHAT, chat);
+            startActivityForResult(intent, RequestCodes.ACTIVITY_CHAT);
+        } catch (Exception ex) {
+            Log.e(TAG, "onClick()-> ", ex);
+        }
     }
 
     public void sendMessage(final Message message) {

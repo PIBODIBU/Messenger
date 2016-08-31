@@ -5,8 +5,17 @@
     <item
         android:id="@+id/action_profile"
         android:title="@string/menu_profile"
-        app:showAsAction="never"
-        android:visible="false" />
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_call"
+        android:title="@string/menu_call"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_to_public_dialog"
+        android:title="@string/menu_to_public_dialog"
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/action_settings"

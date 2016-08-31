@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Private Messenger</string>
+    <string name="app_name">GeeChat</string>
 
     <string name="activity_contact_list">Контакты</string>
     <string name="activity_login">Вход</string>
@@ -70,8 +70,11 @@
     <string name="btn_retry">Попробовать снова</string>
     <string name="btn_cancel">Отмена</string>
     <string name="tv_chat_delete">Удалить беседу</string>
+
     <string name="menu_settings">Настройки</string>
     <string name="menu_profile">Профиль</string>
+    <string name="menu_call">Позвонить</string>
+
     <string name="btn_change_chat_name">Изменить</string>
     <string name="toast_chat_name_changed">Успешно обновлено</string>
     <string name="today">сегодня</string>
@@ -86,6 +89,7 @@
     <string name="you">Вы: </string>
     <string name="new_contact">Новый контакт</string>
     <string name="label_me">я</string>
-    <string name="menu_deauth">Выход</string>
+    <string name="menu_deauth">Удалиться</string>
     <string name="toast_chat_deleted_succesfuly">Диалог удален</string>
+    <string name="menu_to_public_dialog">Создать беседу</string>
 </resources>

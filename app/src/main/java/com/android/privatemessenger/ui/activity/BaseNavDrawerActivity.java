@@ -201,6 +201,7 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
                 .withActivity(this)
                 .withProfileImagesVisible(false)
                 .withHeaderBackground(R.color.colorPrimary)
+                .withSelectionListEnabledForSingleProfile(false)
                 .addProfiles(
                         new ProfileDrawerItem()
                                 .withName(SharedPrefUtils.getInstance(this).getUser().getName())

@@ -78,4 +78,6 @@
                 app:srcCompat="@drawable/ic_send_primary_24dp" />
         </RelativeLayout>
     </RelativeLayout>
+
+    <include layout="@layout/bottom_sheet_contact_info" />
 </android.support.design.widget.CoordinatorLayout>
