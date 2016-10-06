@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.android.privatemessenger.data.api.RetrofitAPI;
 import com.android.privatemessenger.data.model.ErrorResponse;
+import com.android.privatemessenger.data.realm.RealmDB;
 import com.android.privatemessenger.sharedprefs.SharedPrefUtils;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -29,6 +30,8 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     }
 
     private void sendRegistrationToServer(String token) {
+        RealmDB.getDefault(this);
+
         RetrofitAPI.getInstance().updateFCMId(
                 SharedPrefUtils.getInstance(this).getUser().getToken(),
                 token

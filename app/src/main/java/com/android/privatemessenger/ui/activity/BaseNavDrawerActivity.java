@@ -159,6 +159,12 @@ public class BaseNavDrawerActivity extends AppCompatActivity {
 
     private String getUnreadDialogCount() {
         Realm realm = RealmDB.getDefault(this);
+
+        if (realm == null) {
+            Log.e(TAG, "getUnreadDialogCount()-> Realm is null");
+            return "";
+        }
+
         RealmResults<UnreadMessage> results = realm.where(UnreadMessage.class).findAll();
 
         return results.size() == 0 ? "" : String.valueOf(results.size());
